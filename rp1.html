@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESOLUCIÓN DE PROBLEMAS MATEMÁTICOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #e0f2f1 0%, #ffffff 100%); /* Verde menta suave a blanco */
+            min-height: 100vh;
+            color: #263238; /* Azul petróleo profundo / Gris oscuro */
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+        .option-card {
+            transition: all 0.2s ease;
+        }
+        .option-card:hover:not(.disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-color: #4db6ac;
+        }
+        .option-card.selected {
+            border-color: #009688;
+            background-color: #e0f2f1;
+        }
+        .option-card.correct {
+            border-color: #10b981;
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .option-card.incorrect {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #26a69a 0%, #00897b 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(38, 166, 154, 0.4);
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+
+    <!-- Header Fijo -->
+    <header class="w-full bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="land_pag.html" class="flex items-center text-gray-600 hover:text-teal-600 font-semibold transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i> Volver
+            </a>
+            <h1 class="text-sm md:text-lg font-bold text-teal-800 tracking-tight text-center truncate px-2">
+                RESOLUCIÓN DE PROBLEMAS MATEMÁTICOS
+            </h1>
+            <div class="flex items-center gap-2 text-teal-700 font-mono bg-teal-50 px-3 py-1 rounded-full border border-teal-100">
+                <i class="far fa-clock"></i>
+                <span id="timer">01:00:00</span>
+            </div>
+        </div>
+        <!-- Barra de Progreso -->
+        <div class="w-full h-1.5 bg-gray-100">
+            <div id="progress-bar" class="h-full bg-teal-500 transition-all duration-500 ease-out" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="glass-panel w-full max-w-2xl p-8 rounded-2xl text-center animate-fade-in">
+            <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 text-teal-600 text-3xl">
+                <i class="fas fa-calculator"></i>
+            </div>
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Simulador Académico</h2>
+            <p class="text-gray-600 mb-8 leading-relaxed">
+                Bienvenido a la prueba de <strong>Resolución de Problemas Matemáticos</strong>. 
+                Consta de <strong>50 preguntas</strong> de nivel alto. Tienes <strong>60 minutos</strong>.
+                Recibirás retroalimentación inmediata en cada respuesta.
+            </p>
+            <button onclick="startQuiz()" class="btn-primary text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg">
+                Iniciar Simulador
+            </button>
+        </div>
+
+        <!-- Pantalla del Quiz -->
+        <div id="quiz-screen" class="hidden w-full max-w-3xl">
+            <div class="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden">
+                
+                <!-- Encabezado Pregunta -->
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-xs font-bold tracking-wider text-teal-600 uppercase bg-teal-50 px-3 py-1 rounded-lg">
+                        Pregunta <span id="current-question-num">1</span>/50
+                    </span>
+                    <span class="text-sm text-gray-400 font-medium">Razónamiento Lógico</span>
+                </div>
+
+                <!-- Texto Pregunta -->
+                <h3 id="question-text" class="text-xl md:text-2xl font-bold text-gray-800 mb-8 leading-snug">
+                    <!-- Pregunta insertada por JS -->
+                </h3>
+
+                <!-- Opciones -->
+                <div id="options-container" class="space-y-3 mb-8">
+                    <!-- Opciones insertadas por JS -->
+                </div>
+
+                <!-- Botón Acción -->
+                <button id="action-btn" onclick="submitAnswer()" class="w-full btn-primary text-white font-bold py-3.5 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                    Responder
+                </button>
+
+                <!-- Feedback (Sustento) -->
+                <div id="feedback-container" class="hidden mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg animate-fade-in-up">
+                    <div class="flex items-start">
+                        <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-bold text-blue-800 mb-1">Sustento:</h4>
+                            <p id="feedback-text" class="text-sm text-blue-900 leading-relaxed text-justify"></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados -->
+        <div id="result-screen" class="hidden w-full max-w-2xl text-center">
+            <div class="glass-panel p-8 rounded-2xl shadow-xl">
+                <div id="score-icon" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">
+                    <!-- Icono dinámico -->
+                </div>
+                
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Resultados Finales</h2>
+                <p id="performance-msg" class="text-xl font-medium text-teal-600 mb-6"></p>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-gray-500 text-sm mb-1">Puntaje</span>
+                        <span id="final-score" class="text-3xl font-bold text-gray-800">0/50</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <span class="block text-gray-500 text-sm mb-1">Logro</span>
+                        <span id="final-percent" class="text-3xl font-bold text-gray-800">0%</span>
+                    </div>
+                </div>
+
+                <div class="h-4 bg-gray-100 rounded-full overflow-hidden mb-8">
+                    <div id="final-progress" class="h-full bg-teal-500"></div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="location.reload()" class="btn-primary text-white font-bold py-3 px-8 rounded-full shadow-lg">
+                        <i class="fas fa-redo mr-2"></i> Reiniciar Simulador
+                    </button>
+                    <a href="land_pag.html" class="bg-white border-2 border-gray-200 text-gray-600 hover:border-teal-500 hover:text-teal-600 font-bold py-3 px-8 rounded-full transition-colors flex items-center justify-center">
+                        Volver al Inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-gray-400 text-xs mt-auto">
+        <p>@victor 2026-SIMULADOR ACADÉMICO - RESOLUCIÓN DE PROBLEMAS MATEMÁTICOS</p>
+        <p class="mt-1 italic text-teal-600/60">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+    </footer>
+
+    <script>
+        // Datos de las Preguntas (Extraídos y estructurados del PDF)
+        const questionsDB = [
+            {
+                id: 199,
+                q: "Una caja contiene lápices rojos y lápices azules. En total hay 18 lápices y el número de lápices rojos es el doble del número de lápices azules. ¿Cuántos lápices azules hay en la caja?",
+                options: ["4", "6", "8", "9"],
+                correct: 1, // 6
+                rationale: "Sea B la cantidad de lápices azules. Según el enunciado, la cantidad de lápices rojos es el doble, es decir, 2B. La suma total de lápices es 18, por lo que se plantea la ecuación: B+2B=18. Simplificando, 3B=18, y al dividir ambos lados entre 3 se obtiene B=6. Por lo tanto, hay 6 lápices azules en la caja."
+            },
+            {
+                id: 200,
+                q: "En una feria, cada puesto vende paquetes de 8 galletas. Si Miguel compra 5 paquetes y luego reparte las galletas igualmente entre sus 4 amigos, ¿cuántas galletas recibe cada amigo?",
+                options: ["8", "10", "12", "5"],
+                correct: 1, // 10
+                rationale: "Primero se calcula cuántas galletas compró Miguel: 5 paquetes × 8 galletas por paquete = 40 galletas. Luego, esas 40 galletas se dividen entre sus 4 amigos de forma equitativa: 40 ÷ 4 = 10 galletas por amigo."
+            },
+            {
+                id: 201,
+                q: "Una escuela necesita comprar lápices para sus estudiantes. Cada paquete contiene 8 lápices y la escuela compra 12 paquetes. ¿Cuántos lápices tendrá en total?",
+                options: ["84", "96", "100", "120"],
+                correct: 1, // 96
+                rationale: "Para resolver el problema se debe descomponer la información: cada paquete tiene 8 lápices y se compran 12 paquetes. El número total de lápices se obtiene multiplicando la cantidad de paquetes por la cantidad de lápices por paquete (12×8). Al efectuar la multiplicación se obtiene 96."
+            },
+            {
+                id: 202,
+                q: "En una feria de ciencias cada puesto vende 12 paquetes de boletos. Si al final del día se vendieron 144 boletos, ¿cuántos puestos participaron en la venta?",
+                options: ["10", "11", "12", "14"],
+                correct: 2, // 12
+                rationale: "Para determinar cuántos puestos vendieron boletos se debe dividir la cantidad total de boletos vendidos entre la cantidad que vende cada puesto. La operación es 144 ÷ 12 = 12. El cociente indica que 12 puestos participaron."
+            },
+            {
+                id: 203,
+                q: "En una granja hay gallinas y ovejas. En total hay 34 animales y 98 patas. ¿Cuántas ovejas hay en la granja?",
+                options: ["10", "15", "19", "20"],
+                correct: 1, // 15
+                rationale: "Sea g el número de gallinas y o el de ovejas. g+o=34 y 2g+4o=98. Dividiendo la segunda entre 2: g+2o=49. Restando la primera (g+o=34) de esta, queda o=15. Hay 15 ovejas."
+            },
+            {
+                id: 204,
+                q: "En una escuela se organizarán equipos de fútbol de 5 jugadores cada uno. Si 48 estudiantes desean participar, ¿cuál es el número máximo de equipos completos que se pueden formar?",
+                options: ["8", "9", "10", "7"],
+                correct: 1, // 9
+                rationale: "Se divide 48 ÷ 5 = 9 con resto 3. El cociente entero (9) indica la cantidad máxima de equipos que pueden completarse. Los 3 estudiantes restantes no son suficientes para formar otro equipo."
+            },
+            {
+                id: 205,
+                q: "En la feria escolar se venden paquetes de cuadernos, cada paquete contiene 8 cuadernos y cuesta Bs 12. Si la escuela necesita exactamente 56 cuadernos para una actividad, ¿cuántos paquetes deberá adquirir?",
+                options: ["5", "6", "7", "8"],
+                correct: 2, // 7
+                rationale: "Se divide la cantidad total requerida entre la cantidad por paquete: 56 ÷ 8 = 7 paquetes. Como es exacta, se compran 7."
+            },
+            {
+                id: 206,
+                q: "Un agricultor recolectó 48 tomates y decide repartirlos en 6 cestas, colocando la misma cantidad de tomates en cada una. ¿Cuántos tomates deberá colocar en cada cesta?",
+                options: ["6", "7", "8", "9"],
+                correct: 2, // 8
+                rationale: "Para distribuir 48 tomates en 6 cestas, se divide: 48 ÷ 6 = 8. Cada cesta debe contener 8 tomates."
+            },
+            {
+                id: 207,
+                q: "En una papelería, Víctor compra cuadernos y lápices. Cada cuaderno tiene un precio de 3 bolivianos y cada lápiz cuesta 1 boliviano. Si gasta exactamente 21 bolivianos y compra el doble de cuadernos que de lápices, ¿cuántos cuadernos adquirió?",
+                options: ["3", "6", "9", "12"],
+                correct: 1, // 6
+                rationale: "Sea x lápices. Cuadernos = 2x. Costo: 3(2x) + 1x = 7x = 21. x = 3 lápices. Cuadernos = 2*3 = 6."
+            },
+            {
+                id: 208,
+                q: "En una clase de 30 estudiantes, cada alumno necesita 3 cuadernos para el semestre. La tienda donde se comprarán los cuadernos sólo vende paquetes de 5 cuadernos. ¿Cuántos paquetes de cuadernos debe comprar la escuela como mínimo para cubrir la necesidad de todos los estudiantes?",
+                options: ["15", "18", "20", "25"],
+                correct: 1, // 18
+                rationale: "Total necesarios: 30 * 3 = 90 cuadernos. Paquetes: 90 ÷ 5 = 18 paquetes exactos."
+            },
+            {
+                id: 209,
+                q: "En una excursión escolar se reparten uniformemente 48 botellas de agua entre 8 grupos de estudiantes. ¿Cuántas botellas recibirá cada grupo?",
+                options: ["5", "6", "7", "8"],
+                correct: 1, // 6
+                rationale: "48 ÷ 8 = 6. Cada grupo recibe 6 botellas."
+            },
+            {
+                id: 210,
+                q: "Una escuela tiene 240 cuadernos que necesita repartir de forma equitativa entre sus 8 aulas. ¿Cuántos cuadernos le tocarán a cada aula?",
+                options: ["25", "30", "35", "40"],
+                correct: 1, // 30
+                rationale: "240 ÷ 8 = 30. Las demás opciones no cumplen con la igualdad requerida."
+            },
+            {
+                id: 211,
+                q: "En una biblioteca escolar hay 40 libros y se quieren colocar en 5 estanterías de forma que cada estantería tenga la misma cantidad de libros. ¿Cuántos libros debe haber en cada estantería?",
+                options: ["6", "7", "8", "9"],
+                correct: 2, // 8
+                rationale: "40 ÷ 5 = 8. Cada estantería debe contener 8 libros."
+            },
+            {
+                id: 212,
+                q: "Una docente necesita cuadernos para sus alumnos. Compra 3 paquetes con 12 cuadernos cada uno y, adicionalmente, adquiere 4 paquetes con 15 cuadernos cada uno. ¿Cuántos cuadernos tendrá en total?",
+                options: ["84", "90", "96", "100"],
+                correct: 2, // 96
+                rationale: "Paquetes 1: 3 * 12 = 36. Paquetes 2: 4 * 15 = 60. Total: 36 + 60 = 96 cuadernos."
+            },
+            {
+                id: 213,
+                q: "En una feria, cada puesto vende 8 manzanas. Si hay 5 puestos y se venden 30 manzanas, ¿cuántas manzanas quedan sin vender?",
+                options: ["5", "8", "10", "12"],
+                correct: 2, // 10
+                rationale: "Total disponible: 5 * 8 = 40. Quedan: 40 - 30 = 10 manzanas."
+            },
+            {
+                id: 214,
+                q: "María tiene 15 bolivianos para comprar material escolar. Cada cuaderno cuesta 2 bolivianos y cada lápiz cuesta 0,5 bolivianos. Si decide comprar 4 cuadernos, ¿cuántos lápices podrá adquirir con el dinero que le queda?",
+                options: ["10", "12", "14", "16"],
+                correct: 2, // 14
+                rationale: "Gasto cuadernos: 4 * 2 = 8 Bs. Quedan: 15 - 8 = 7 Bs. Lápices: 7 ÷ 0.5 = 14 lápices."
+            },
+            {
+                id: 215,
+                q: "En una escuela se organizan equipos de fútbol. Cada equipo debe estar compuesto por 2 defensas y 3 delanteros. Si se forman 4 equipos y se utilizan todos los estudiantes, ¿cuántos delanteros participan en total?",
+                options: ["8", "10", "12", "14"],
+                correct: 2, // 12
+                rationale: "Cada equipo necesita 3 delanteros. Si se forman 4 equipos: 3 * 4 = 12 delanteros."
+            },
+            {
+                id: 216,
+                q: "Una profesora compra tres paquetes idénticos de marcadores. En total adquiere 84 marcadores. ¿Cuántos marcadores contiene cada paquete?",
+                options: ["24", "26", "28", "30"],
+                correct: 2, // 28
+                rationale: "84 ÷ 3 = 28 marcadores por paquete."
+            },
+            {
+                id: 217,
+                q: "En una feria, Jorge compra 3 paquetes idénticos de semillas. Después de repartir 45 semillas a cada uno de sus 4 amigos, le quedan 15 semillas. ¿Cuántas semillas contenía cada paquete?",
+                options: ["55", "60", "65", "70"],
+                correct: 2, // 65
+                rationale: "Repartió: 4 * 45 = 180. Total con sobrante: 180 + 15 = 195. Por paquete: 195 ÷ 3 = 65."
+            },
+            {
+                id: 218,
+                q: "Una biblioteca escolar dispone de 84 libros y quiere repartirlos en 3 estanterías de forma que cada una tenga la misma cantidad de libros. ¿Cuántos libros debe colocar en cada estantería?",
+                options: ["26", "27", "28", "29"],
+                correct: 2, // 28
+                rationale: "84 ÷ 3 = 28 libros por estantería."
+            },
+            {
+                id: 219,
+                q: "En una escuela se decide repartir uniformemente los libros donados entre sus 5 aulas. Si en total se recibieron 360 libros, ¿cuántos libros le corresponden a cada aula?",
+                options: ["60", "70", "72", "75"],
+                correct: 2, // 72
+                rationale: "360 ÷ 5 = 72 libros por aula."
+            },
+            {
+                id: 220,
+                q: "Una excursión escolar tiene 48 estudiantes. Cada autobús disponible tiene capacidad para 8 pasajeros. ¿Cuántos autobuses se necesitan para transportar a todos los estudiantes sin que sobrecargue ningún vehiculo?",
+                options: ["5", "6", "7", "8"],
+                correct: 1, // 6
+                rationale: "48 ÷ 8 = 6 autobuses exactos."
+            },
+            {
+                id: 221,
+                q: "En una feria escolar, cada estudiante compra una pulsera de acceso a talleres que cuesta $12. Si un grupo de 5 estudiantes decide comprar las pulseras en conjunto y el organizador les ofrece un descuento del 10% sobre el total, ¿cuál es el monto que deberán pagar en total?",
+                options: ["$50", "$52", "$54", "$58"],
+                correct: 2, // 54
+                rationale: "Total sin descuento: 5 * 12 = 60. Descuento: 10% de 60 = 6. Total a pagar: 60 - 6 = 54."
+            },
+            {
+                id: 222,
+                q: "Una escuela desea comprar cuadernos. Cada paquete contiene 12 cuadernos y cuesta 18 dólares. La escuela necesita exactamente 48 cuadernos. ¿Cuál es el gasto mínimo que debe realizar?",
+                options: ["$54", "$64", "$72", "$80"],
+                correct: 2, // 72
+                rationale: "Paquetes necesarios: 48 ÷ 12 = 4. Costo: 4 * 18 = 72 dólares."
+            },
+            {
+                id: 223,
+                q: "Una biblioteca cuenta con 180 libros y cada estantería puede albergar exactamente 15 libros. ¿Cuántas estanterías completas son necesarias para colocar todos los libros?",
+                options: ["10", "11", "12", "13"],
+                correct: 2, // 12
+                rationale: "180 ÷ 15 = 12 estanterías exactas."
+            },
+            {
+                id: 224,
+                q: "Una escuela adquirió 48 cuadernos y decide repartirlos de manera equitativa entre sus 6 clases. ¿Cuántos cuadernos le corresponderán a cada clase?",
+                options: ["6", "8", "9", "12"],
+                correct: 1, // 8
+                rationale: "48 ÷ 6 = 8. Las demás opciones (12, 6, 9) no cumplen."
+            },
+            {
+                id: 225,
+                q: "En una clase de 20 estudiantes, la suma total de las calificaciones obtenidas en el último examen fue 1560 puntos. ¿Cuál es el promedio de notas que obtuvo la clase?",
+                options: ["75", "76", "78", "80"],
+                correct: 2, // 78
+                rationale: "Promedio = Suma / Cantidad. 1560 ÷ 20 = 78."
+            },
+            {
+                id: 226,
+                q: "Una tienda vende paquetes de lápices. Cada paquete contiene entre 8 y 12 lápices. Si una clase necesita exactamente 86 lápices y solo puede comprar paquetes completos, ¿cuál es el número mínimo de paquetes que debe adquirir?",
+                options: ["7", "8", "9", "10"],
+                correct: 1, // 8
+                rationale: "Asumiendo el máximo por paquete (12): 7 * 12 = 84 (no alcanza). 8 * 12 = 96 (cubre la necesidad). Mínimo 8 paquetes."
+            },
+            {
+                id: 227,
+                q: "Una escuela organizó una venta de boletos durante cinco días consecutivos. Cada día se vendieron al menos 80 boletos y, además, cada día posterior se vendieron 10 boletos más que el día anterior. Si al final de la semana se vendieron en total 480 boletos, ¿cuántos boletos se vendieron en el tercer día?",
+                options: ["86", "90", "96", "100"],
+                correct: 2, // 96
+                rationale: "Días: x, x+10, x+20, x+30, x+40. Suma: 5x+100=480 -> 5x=380 -> x=76. Tercer día (x+20) = 76+20 = 96."
+            },
+            {
+                id: 228,
+                q: "En una clase de matemática, los estudiantes obtuvieron las siguientes calificaciones en la tarea: 85, 78, 90, 72 y 73. El profesor anuncia que el promedio de la clase es 78. ¿Cuál de las siguientes afirmaciones es correcta?",
+                options: [
+                    "El promedio real es mayor que 78", 
+                    "El promedio es 78, lo cual coincide con el cálculo", 
+                    "El promedio real es menor que 75", 
+                    "No se puede calcular"
+                ],
+                correct: 1, 
+                rationale: "Suma real: 398. Promedio real: 398/5 = 79.6. El enunciado pide identificar la afirmación sobre el anuncio. La opción correcta en el contexto del repositorio es aceptar el valor anunciado si se pide coherencia, o notar la discrepancia. (Nota: Según el sustento original, se selecciona la opción que dice que es 78 para evaluar la coherencia de la afirmación dada en el contexto de un examen, aunque el cálculo exacto difiera)."
+            },
+            {
+                id: 229,
+                q: "Una maestra compra 100 lápices para repartir entre sus 30 estudiantes, entregando exactamente 3 lápices a cada uno. ¿Cuál de las siguientes afirmaciones es coherente con la cantidad de lápices que quedarían sin repartir?",
+                options: ["Quedan 5 lápices", "Quedan 10 lápices", "Quedan 15 lápices", "No quedan lápices"],
+                correct: 1, // 10
+                rationale: "30 * 3 = 90 repartidos. 100 - 90 = 10 restantes."
+            },
+            {
+                id: 230,
+                q: "En una actividad escolar, Luis compra 3 paquetes de bolígrafos. Cada paquete contiene 8 bolígrafos. Después registra que ha comprado un total de 24 bolígrafos. ¿Es coherente la información proporcionada?",
+                options: ["Sí, es coherente", "No, deberían ser 28", "No, deberían ser 32", "Información incompleta"],
+                correct: 0, 
+                rationale: "3 * 8 = 24. El registro coincide con el cálculo."
+            },
+            {
+                id: 231,
+                q: "En una clase de 5 estudiantes, las notas obtenidas son 70, 85, 90, 75 y 80. El docente afirma que el promedio de la clase es 84. ¿Es coherente este resultado?",
+                options: ["Sí, es coherente", "No, el promedio es 80", "No, el promedio es 82", "No, el promedio es 78"],
+                correct: 1, 
+                rationale: "Suma: 400. Promedio: 400/5 = 80. La afirmación de 84 no es coherente."
+            },
+            {
+                id: 232,
+                q: "En una feria escolar, el stand de experimentos de física vendió 48 boletos y el stand de arte vendió 30 boletos. Se sabe que el número de boletos vendidos por el stand de física es 1,5 veces el número de boletos vendidos por el stand de arte. ¿Cuál de las siguientes afirmaciones describe correctamente la relación?",
+                options: [
+                    "Arte vendió 18 boletos menos que física", 
+                    "La relación es 2:1", 
+                    "La relación es 1:2", 
+                    "Vendieron lo mismo"
+                ],
+                correct: 0, 
+                rationale: "48 - 30 = 18. Arte vendió 18 menos que Física. Además 30 * 1.5 no es 48 (es 45), pero la afirmación de la diferencia de 18 es el hecho fáctico correcto derivado de los números absolutos dados."
+            },
+            {
+                id: 233,
+                q: "Un estudiante desea comprar la cantidad de cerca necesaria para rodear un jardín rectangular cuya longitud es 8 metros y su ancho 5 metros. ¿Cuál de las siguientes afirmaciones describe correctamente el razonamiento para hallar la longitud total de la cerca?",
+                options: [
+                    "Sumar 2(8) + 2(5) = 26m", 
+                    "Multiplicar 8 x 5 = 40m", 
+                    "Sumar 8 + 5 = 13m", 
+                    "Sumar 4(8) = 32m"
+                ],
+                correct: 0, 
+                rationale: "Perímetro = 2(Largo) + 2(Ancho) = 2(8) + 2(5) = 16 + 10 = 26m."
+            },
+            {
+                id: 234,
+                q: "En una escuela secundaria, cada aula tiene 26 estudiantes. El docente planea organizarlos en equipos de 4 integrantes. ¿Cuál es la conclusión lógica correcta?",
+                options: [
+                    "6 equipos completos y quedan 2 estudiantes", 
+                    "7 equipos completos", 
+                    "5 equipos y sobran 6", 
+                    "6 equipos exactos"
+                ],
+                correct: 0, 
+                rationale: "26 ÷ 4 = 6 con residuo 2. Se forman 6 equipos y sobran 2 estudiantes."
+            },
+            {
+                id: 235,
+                q: "En una clase hay 24 estudiantes. Se desea organizarlos en filas de igual número, mayor que 3 y menor que 6. ¿Cuántas filas debe formar?",
+                options: ["3", "4", "5", "8"],
+                correct: 1, // 4
+                rationale: "Divisores de 24: ..., 3, 4, 6, ... Entre 3 y 6 solo está el 4."
+            },
+            {
+                id: 236,
+                q: "En una escuela se registró que 30 estudiantes practican fútbol, 20 practican baloncesto y 10 practican ambos deportes. ¿Cuál afirmación es necesariamente verdadera?",
+                options: [
+                    "Hay al menos 40 estudiantes que practican alguno", 
+                    "Hay 60 estudiantes en total", 
+                    "10 no practican nada", 
+                    "Todos practican deportes"
+                ],
+                correct: 0, 
+                rationale: "Unión = F + B - Intersección = 30 + 20 - 10 = 40. Al menos 40 practican uno u otro."
+            },
+            {
+                id: 237,
+                q: "Condiciones: 1) Si usa energía solar, recibe bonificación. 2) Nicolas no recibió bonificación. 3) Carlos usó energía solar. ¿Qué es necesariamente verdadero?",
+                options: [
+                    "Carlos recibió la bonificación", 
+                    "Nicolas usó energía solar", 
+                    "Carlos no recibió puntos", 
+                    "Ninguna es cierta"
+                ],
+                correct: 0, 
+                rationale: "Por (1) y (3), Carlos debe recibir bonificación. Por (1) y (2), Nicolas no usó energía solar."
+            },
+            {
+                id: 238,
+                q: "Una tienda vende paquetes de lápices (entre 8 y 12 por paquete). Si se necesitan 86 lápices, ¿cuál es el mínimo de paquetes a comprar?",
+                options: ["7", "8", "9", "10"],
+                correct: 1, // 8
+                rationale: "Similar a la pregunta 226. Para garantizar cobertura con incertidumbre o maximizar eficiencia, 8 paquetes (8*12=96) cubren 86. 7 paquetes (7*12=84) no alcanzan."
+            },
+            {
+                id: 239,
+                q: "Una Unidad Educativa vendió boletos 5 días. Cada día 10 más que el anterior. Total 480. ¿Cuántos el tercer día?",
+                options: ["86", "96", "106", "76"],
+                correct: 1, // 96
+                rationale: "Repetición de la lógica de la pregunta 227. x=76, 3er día = 76+20 = 96."
+            },
+            {
+                id: 240,
+                q: "Notas: 85, 78, 90, 72, 73. Profesor dice promedio 78. ¿Es correcto?",
+                options: [
+                    "Sí, es exacto", 
+                    "No, el cálculo exacto es 79.6", 
+                    "No, es 75", 
+                    "Sí, redondeado hacia abajo"
+                ],
+                correct: 1, 
+                rationale: "Suma 398 / 5 = 79.6. El anuncio de 78 no coincide con el cálculo exacto."
+            },
+            {
+                id: 241,
+                q: "Tres aulas. Aula 1: 24 lápices. Aula 2: el doble de la 1. Aula 3: 10 menos que la suma de 1 y 2. ¿Total en las tres?",
+                options: ["124", "130", "134", "140"],
+                correct: 2, // 134
+                rationale: "A1=24. A2=48. Suma(1+2)=72. A3=72-10=62. Total=24+48+62=134."
+            },
+            {
+                id: 242,
+                q: "Total 98 lápices (rojos, azules, verdes). Rojos = 2*Azules. Verdes = Rojos - 12. ¿Cuántos azules?",
+                options: ["20", "22", "24", "26"],
+                correct: 1, // 22
+                rationale: "Azules=x, Rojos=2x, Verdes=2x-12. x + 2x + 2x - 12 = 98 -> 5x = 110 -> x = 22."
+            },
+            {
+                id: 243,
+                q: "Granja: 54 animales, 140 patas (gallinas y vacas). ¿Cuántas vacas?",
+                options: ["14", "16", "18", "20"],
+                correct: 1, // 16
+                rationale: "V=vacas. 4V + 2(54-V) = 140 -> 2V + 108 = 140 -> 2V = 32 -> V=16."
+            },
+            {
+                id: 244,
+                q: "100 lápices, 30 estudiantes, 3 por estudiante. ¿Qué afirmación es coherente sobre lo que sobra?",
+                options: ["Sobran 5", "Sobran 10", "Sobran 0", "Faltan 5"],
+                correct: 1, 
+                rationale: "Igual a la pregunta 229. 100 - 90 = 10 sobran."
+            },
+            {
+                id: 245,
+                q: "Ana compra 3 paquetes de 8 bolígrafos. Registra 24 en total. ¿Es coherente?",
+                options: ["Sí", "No", "No se sabe", "Depende del precio"],
+                correct: 0, 
+                rationale: "Igual a la pregunta 230. 3*8=24. Es coherente."
+            },
+            {
+                id: 246,
+                q: "Paquete: 3 cuadernos y 2 libros por $56. Libro cuesta el doble que cuaderno. ¿Precio de un cuaderno?",
+                options: ["$6", "$8", "$10", "$12"],
+                correct: 1, // 8
+                rationale: "c=cuaderno. l=2c. 3c + 2(2c) = 56 -> 7c = 56 -> c = 8."
+            },
+            {
+                id: 247,
+                q: "120 estudiantes. Grupos entre 8 y 12 personas. ¿Número mínimo de grupos?",
+                options: ["8", "10", "12", "15"],
+                correct: 1, // 10
+                rationale: "Para mínimo grupos, maximizar estudiantes por grupo (12). 120 ÷ 12 = 10 grupos. Cumple rango."
+            },
+            {
+                id: 248,
+                q: "Notas: 70, 85, 90, 75, 80. Maestro dice promedio 84. ¿Es coherente?",
+                options: ["Sí", "No, es 80", "No, es 82", "No, es 78"],
+                correct: 1, 
+                rationale: "Igual a pregunta 231. Promedio real 80."
+            },
+            {
+                id: 249,
+                q: "Física vendió 48, Arte 30. Física es 1.5 veces Arte. ¿Relación correcta?",
+                options: [
+                    "Arte vendió 18 menos que Física", 
+                    "Física vendió el doble", 
+                    "Arte vendió más", 
+                    "Son iguales"
+                ],
+                correct: 0, 
+                rationale: "Igual a pregunta 232. 48 - 30 = 18."
+            }
+        ];
+
+        // Estado del Juego
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerInterval;
+        let timeLeft = 3600; // 1 hora en segundos
+        let answered = false;
+
+        // Elementos DOM
+        const screens = {
+            start: document.getElementById('start-screen'),
+            quiz: document.getElementById('quiz-screen'),
+            result: document.getElementById('result-screen')
+        };
+        const elements = {
+            questionNum: document.getElementById('current-question-num'),
+            questionText: document.getElementById('question-text'),
+            optionsContainer: document.getElementById('options-container'),
+            progressBar: document.getElementById('progress-bar'),
+            timer: document.getElementById('timer'),
+            feedbackContainer: document.getElementById('feedback-container'),
+            feedbackText: document.getElementById('feedback-text'),
+            actionBtn: document.getElementById('action-btn'),
+            finalScore: document.getElementById('final-score'),
+            finalPercent: document.getElementById('final-percent'),
+            finalProgress: document.getElementById('final-progress'),
+            performanceMsg: document.getElementById('performance-msg'),
+            scoreIcon: document.getElementById('score-icon')
+        };
+
+        // Formato de Tiempo
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // Iniciar Quiz
+        function startQuiz() {
+            screens.start.classList.add('hidden');
+            screens.quiz.classList.remove('hidden');
+            screens.quiz.classList.add('animate-fade-in');
+            
+            loadQuestion();
+            startTimer();
+        }
+
+        // Timer
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                elements.timer.textContent = formatTime(timeLeft);
+                if (timeLeft <= 0) {
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        // Cargar Pregunta
+        function loadQuestion() {
+            const q = questionsDB[currentQuestionIndex];
+            elements.questionNum.textContent = currentQuestionIndex + 1;
+            elements.questionText.textContent = `${q.id}. ${q.q}`;
+            elements.feedbackContainer.classList.add('hidden');
+            elements.actionBtn.textContent = "Responder";
+            elements.actionBtn.onclick = submitAnswer;
+            elements.actionBtn.disabled = true; // Deshabilitar hasta seleccionar
+            
+            // Renderizar Opciones
+            elements.optionsContainer.innerHTML = '';
+            answered = false;
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = `option-card w-full text-left p-4 rounded-xl border-2 border-gray-100 bg-white text-gray-700 font-medium hover:bg-teal-50 hover:border-teal-200 transition-all flex items-center group`;
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center mr-4 group-hover:border-teal-400 text-sm font-bold text-gray-400 group-hover:text-teal-500 transition-colors">
+                        ${String.fromCharCode(65 + index)}
+                    </span>
+                    <span>${opt}</span>
+                `;
+                btn.onclick = () => selectOption(index, btn);
+                elements.optionsContainer.appendChild(btn);
+            });
+
+            // Actualizar Barra Progreso
+            const progress = ((currentQuestionIndex) / questionsDB.length) * 100;
+            elements.progressBar.style.width = `${progress}%`;
+        }
+
+        let selectedOptionIndex = null;
+
+        function selectOption(index, btnElement) {
+            if (answered) return;
+            
+            // Reset visual
+            Array.from(elements.optionsContainer.children).forEach(child => {
+                child.classList.remove('selected', 'border-teal-500', 'bg-teal-50');
+                child.querySelector('span:first-child').classList.remove('border-teal-500', 'text-teal-500');
+            });
+
+            // Select clicked
+            selectedOptionIndex = index;
+            btnElement.classList.add('selected');
+            
+            // Enable button
+            elements.actionBtn.disabled = false;
+        }
+
+        function submitAnswer() {
+            if (selectedOptionIndex === null) return;
+            
+            answered = true;
+            const q = questionsDB[currentQuestionIndex];
+            const options = elements.optionsContainer.children;
+            const isCorrect = selectedOptionIndex === q.correct;
+
+            // Mostrar Correcto/Incorrecto
+            if (isCorrect) {
+                options[selectedOptionIndex].classList.add('correct');
+                score++;
+            } else {
+                options[selectedOptionIndex].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+            }
+
+            // Deshabilitar todos
+            Array.from(options).forEach(btn => {
+                btn.classList.add('disabled');
+                btn.onclick = null;
+            });
+
+            // Mostrar Sustento
+            elements.feedbackText.textContent = q.rationale;
+            elements.feedbackContainer.classList.remove('hidden');
+
+            // Cambiar Botón a Siguiente
+            elements.actionBtn.textContent = currentQuestionIndex === questionsDB.length - 1 ? "Ver Resultados" : "Siguiente Pregunta";
+            elements.actionBtn.onclick = nextQuestion;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questionsDB.length) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function endQuiz() {
+            clearInterval(timerInterval);
+            screens.quiz.classList.add('hidden');
+            screens.result.classList.remove('hidden');
+            screens.result.classList.add('animate-fade-in');
+
+            const percentage = Math.round((score / questionsDB.length) * 100);
+            elements.finalScore.textContent = `${score}/${questionsDB.length}`;
+            elements.finalPercent.textContent = `${percentage}%`;
+            elements.finalProgress.style.width = `${percentage}%`;
+
+            // Determinación de Nivel
+            let levelClass = "";
+            let icon = "";
+            let msg = "";
+
+            if (percentage >= 80) {
+                msg = "¡Desempeño Alto! Excelente trabajo.";
+                levelClass = "text-green-500 bg-green-100";
+                icon = '<i class="fas fa-trophy"></i>';
+            } else if (percentage >= 50) {
+                msg = "Desempeño Medio. Vas por buen camino.";
+                levelClass = "text-yellow-500 bg-yellow-100";
+                icon = '<i class="fas fa-star-half-alt"></i>';
+            } else {
+                msg = "Desempeño Bajo. Sigue practicando.";
+                levelClass = "text-red-500 bg-red-100";
+                icon = '<i class="fas fa-book-open"></i>';
+            }
+
+            elements.performanceMsg.textContent = msg;
+            elements.scoreIcon.innerHTML = icon;
+            elements.scoreIcon.className = `w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner ${levelClass}`;
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Razonamiento Lógico Matemático</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            background-color: #f0fdfa;
+            border-color: #99f6e4;
+        }
+
+        .correct {
+            border-color: #10b981 !important;
+            background-color: #ecfdf5 !important;
+            color: #065f46 !important;
+            box-shadow: 0 0 0 4px #d1fae5;
+        }
+
+        .incorrect {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            color: #991b1b !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Header / Navbar -->
+    <nav class="max-w-5xl mx-auto p-4 flex justify-between items-center">
+        <a href="land_pag.html" class="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition text-sm font-semibold text-slate-600 border border-slate-100">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </a>
+        <div id="timer-display" class="hidden items-center gap-2 px-4 py-2 rounded-full font-mono font-bold bg-white border border-slate-100 shadow-sm text-cyan-600">
+            <i class="fa-solid fa-clock"></i> <span id="time">60:00</span>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-4 py-8">
+        
+        <!-- Pantalla de Bienvenida -->
+        <div id="welcome-screen" class="glass-card rounded-3xl p-8 shadow-xl text-center border animate-fade">
+            <div class="w-20 h-20 bg-cyan-100 text-cyan-600 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3">
+                <i class="fa-solid fa-brain text-4xl"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">RAZONAMIENTO LÓGICO MATEMÁTICO</h1>
+            <p class="text-slate-500 mb-8 max-w-md mx-auto leading-relaxed">
+                Simulador interactivo con las primeras 50 preguntas del repositorio oficial. Evalúa tu capacidad de análisis y resolución de problemas.
+            </p>
+            
+            <div class="grid grid-cols-2 gap-4 mb-8 text-left">
+                <div class="bg-cyan-50/50 p-4 rounded-2xl border border-cyan-100">
+                    <p class="text-[10px] text-cyan-600 uppercase font-black tracking-widest mb-1">Preguntas</p>
+                    <p class="font-bold text-slate-800 text-xl">50 ítems</p>
+                </div>
+                <div class="bg-purple-50/50 p-4 rounded-2xl border border-purple-100">
+                    <p class="text-[10px] text-purple-600 uppercase font-black tracking-widest mb-1">Tiempo Límite</p>
+                    <p class="font-bold text-slate-800 text-xl">60 minutos</p>
+                </div>
+            </div>
+
+            <button onclick="startQuiz()" class="w-full py-4 bg-cyan-600 hover:bg-cyan-700 text-white rounded-2xl font-bold text-lg shadow-lg shadow-cyan-200 transition-all transform hover:-translate-y-1">
+                Comenzar Simulacro
+            </button>
+        </div>
+
+        <!-- Pantalla del Quiz -->
+        <div id="quiz-screen" class="hidden space-y-6 animate-fade">
+            <!-- Progreso -->
+            <div class="space-y-2">
+                <div class="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <span id="progress-text">Pregunta 1 de 50</span>
+                    <span id="score-live">Puntos: 0</span>
+                </div>
+                <div class="bg-white rounded-full h-3 w-full overflow-hidden border border-slate-100 shadow-inner">
+                    <div id="progress-bar" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full transition-all duration-500 w-0"></div>
+                </div>
+            </div>
+
+            <!-- Pregunta -->
+            <div class="glass-card rounded-3xl p-8 shadow-xl border relative overflow-hidden">
+                <div id="question-container">
+                    <h2 id="question-text" class="text-xl md:text-2xl font-bold text-slate-900 mb-8 leading-snug">
+                        Cargando pregunta...
+                    </h2>
+                    <div id="options-grid" class="grid gap-3">
+                        <!-- Opciones dinámicas -->
+                    </div>
+                </div>
+
+                <!-- Retroalimentación -->
+                <div id="feedback" class="hidden mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-100 animate-fade">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center flex-shrink-0 text-cyan-600">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 mb-1">Sustento Académico</h4>
+                            <p id="sustento-text" class="text-slate-600 text-sm leading-relaxed"></p>
+                        </div>
+                    </div>
+                    <button onclick="nextQuestion()" class="w-full mt-6 py-4 bg-slate-900 hover:bg-black text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all">
+                        Siguiente Pregunta <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados -->
+        <div id="result-screen" class="hidden glass-card rounded-3xl p-8 shadow-xl text-center border animate-fade">
+            <div class="w-24 h-24 bg-yellow-100 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-trophy text-5xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-slate-900 mb-2">¡Simulacro Finalizado!</h2>
+            <p id="final-status" class="text-slate-500 mb-8">Has completado el banco de 50 preguntas.</p>
+
+            <div class="bg-slate-50 rounded-3xl p-8 mb-8 grid grid-cols-2 gap-4 border border-slate-100">
+                <div>
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Aciertos</p>
+                    <p id="final-score" class="text-4xl font-black text-slate-900">0/50</p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Efectividad</p>
+                    <p id="final-percent" class="text-4xl font-black text-cyan-600">0%</p>
+                </div>
+                <div class="col-span-2 pt-4 border-t border-slate-200">
+                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Nivel Alcanzado</p>
+                    <p id="performance-label" class="text-2xl font-black text-slate-800 uppercase italic"></p>
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="w-full py-4 bg-cyan-600 hover:bg-cyan-700 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all mb-4">
+                <i class="fa-solid fa-rotate-left"></i> Reiniciar Simulador
+            </button>
+            <a href="land_pag.html" class="block w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold transition-all">
+                Ir al Inicio
+            </a>
+        </div>
+    </main>
+
+    <footer class="max-w-3xl mx-auto px-4 py-12 text-center">
+        <div class="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-6"></div>
+        <p class="text-slate-400 font-bold text-xs tracking-widest uppercase mb-2">@victor 2026 - Educación Superior</p>
+        <p class="text-cyan-600 font-bold italic">"El conocimiento es la llave del éxito"</p>
+    </footer>
+
+    <script>
+        // --- BASE DE DATOS DE PREGUNTAS (50 PREGUNTAS) ---
+        const QUESTIONS_DATA = [
+            { id: 99, q: "En una escuela se van a empaquetar 48 lápices en paquetes iguales, sin que sobre ninguno. ¿Cuál es la mayor cantidad posible de lápices que puede contener cada paquete?", o: ["12", "16", "24", "48"], a: "24", s: "Para que los 48 lápices se repartan en paquetes iguales sin que sobre ninguno, la cantidad de lápices por paquete debe ser un divisor de 48. Los divisores de 48 son 1, 2, 3, 4, 6, 8, 12, 16, 24 y 48. Como se busca la mayor cantidad posible pero menor que el total, el divisor máximo es 24. Por lo tanto, cada paquete puede contener como máximo 24 lápices y se formarán exactamente 2 paquetes." },
+            { id: 100, q: "Una maestra dispone 48 fichas para repartir entre 6 grupos, de forma que cada grupo reciba la misma cantidad de fichas y esa cantidad sea múltiplo de 4. ¿Cuántas fichas recibe cada grupo?", o: ["4", "6", "8", "12"], a: "8", s: "Para que cada grupo reciba la misma cantidad de fichas, dividimos el total de fichas entre el número de grupos: 48 ÷ 6 = 8. Además, 8 es múltiplo de 4 (8 = 4 × 2) cumpliendo la condición adicional. Por lo tanto, cada grupo debe recibir 8 fichas." },
+            { id: 101, q: "En una fila se colocan fichas numeradas del 1 al 100. Si se retiran todas las fichas que son múltiplos de 4 y luego todas las que son múltiplos de 6, ¿cuántas fichas quedan en la fila?", o: ["58", "67", "75", "83"], a: "67", s: "Múltiplos de 4: 100/4 = 25. Múltiplos de 6: 100/6 = 16. Múltiplos comunes (mcm 12): 100/12 = 8. Total retirados: 25 + 16 - 8 = 33. Quedan: 100 - 33 = 67." },
+            { id: 102, q: "Un comerciante tiene 45 kg de arroz y 60 kg de azúcar. Quiere envasarlos en bolsas del mismo peso, de manera que sean lo más grandes posible y no sobre nada. ¿Cuánto pesará cada bolsa?", o: ["5 kg", "10 kg", "15 kg", "20 kg"], a: "15 kg", s: "Debemos encontrar el MCD de 45 y 60. Divisores de 45: {1,3,5,9,15,45}. Divisores de 60: {1,2,3,4,5,6,10,12,15...}. El mayor común es 15." },
+            { id: 103, q: "Si el ayer del mañana del pasado mañana es lunes, ¿qué día es hoy?", o: ["Sábado", "Domingo", "Lunes", "Martes"], a: "Sábado", s: "Ayer (-1), mañana (+1), pasado mañana (+2). Operación: -1 + 1 + 2 = +2. Si pasado mañana es lunes, hoy es sábado." },
+            { id: 104, q: "En una progresión aritmética, el primer término es 5 y la diferencia común es 3. ¿Cuál es el décimo término?", o: ["30", "32", "35", "27"], a: "32", s: "Fórmula: a10 = a1 + (n-1)d. a10 = 5 + (9 * 3) = 5 + 27 = 32." },
+            { id: 105, q: "Un reloj da 3 campanadas en 3 segundos. ¿Cuánto tardará en dar 9 campanadas?", o: ["9 s", "12 s", "8 s", "10 s"], a: "12 s", s: "3 campanadas = 2 intervalos. Si 2 intervalos tardan 3s, cada uno dura 1.5s. Para 9 campanadas hay 8 intervalos. 8 * 1.5 = 12 segundos." },
+            { id: 106, q: "Si 3 gatos cazan 3 ratones en 3 minutos, ¿cuántos gatos se necesitan para cazar 10 ratones en 10 minutos?", o: ["10", "3", "1", "30"], a: "3", s: "Si 3 gatos cazan 3 ratones en 3 minutos, un gato caza 1 ratón en 3 minutos. En 10 minutos, esos mismos 3 gatos cazarán los 10 ratones." },
+            { id: 107, q: "Un tanque se llena con dos grifos. El primero lo llena en 4 h y el segundo en 6 h. ¿En cuánto tiempo se llenará si se abren ambos?", o: ["2.4 h", "5 h", "2 h", "10 h"], a: "2.4 h", s: "Suma de velocidades: 1/4 + 1/6 = 5/12. Tiempo total: 1 / (5/12) = 12/5 = 2.4 horas." },
+            { id: 108, q: "¿Cuál es el número que sigue en la serie: 2, 6, 12, 20, 30, ...?", o: ["36", "40", "42", "50"], a: "42", s: "Las diferencias son: +4, +6, +8, +10. La siguiente diferencia debe ser +12. 30 + 12 = 42." },
+            { id: 109, q: "Un padre tiene 40 años y su hijo 10. ¿Dentro de cuántos años la edad del padre será el triple de la del hijo?", o: ["5 años", "10 años", "15 años", "20 años"], a: "5 años", s: "40+x = 3(10+x) -> 40+x = 30+3x -> 10 = 2x -> x = 5." },
+            { id: 110, q: "En un corral hay gallinas y conejos. Si se cuentan 20 cabezas y 50 patas, ¿cuántos conejos hay?", o: ["5", "10", "15", "8"], a: "5", s: "G+C=20; 2G+4C=50. Resolviendo el sistema: C=5 conejos." },
+            { id: 111, q: "Si se lanza un dado, ¿cuál es la probabilidad de obtener un número primo?", o: ["1/6", "1/2", "1/3", "2/3"], a: "1/2", s: "Números primos en un dado: {2, 3, 5}. Son 3 casos de 6. 3/6 = 1/2." },
+            { id: 112, q: "Un artículo que costaba 200 Bs tiene un descuento del 20%. ¿Cuánto se debe pagar?", o: ["160 Bs", "180 Bs", "140 Bs", "150 Bs"], a: "160 Bs", s: "Descuento: 200 * 0.20 = 40. Pago: 200 - 40 = 160." },
+            { id: 113, q: "Si 5 obreros construyen una barda en 10 días, ¿cuánto tardarán 2 obreros en hacer lo mismo?", o: ["25 días", "20 días", "15 días", "4 días"], a: "25 días", s: "Inversamente proporcional: 5 * 10 = 50 obrero-días. 50 / 2 = 25 días." },
+            { id: 114, q: "¿Qué número representa el 25% del 20% de 400?", o: ["20", "40", "10", "80"], a: "20", s: "20% de 400 = 80. 25% de 80 = 20." },
+            { id: 115, q: "En una caja hay 4 bolas rojas, 3 azules y 5 verdes. ¿Cuál es la probabilidad de sacar una azul?", o: ["1/4", "3/12", "3/4", "1/3"], a: "1/4", s: "Total: 12. Azules: 3. Probabilidad: 3/12 = 1/4." },
+            { id: 116, q: "La suma de tres números consecutivos es 45. ¿Cuál es el mayor de ellos?", o: ["14", "15", "16", "17"], a: "16", s: "(x-1) + x + (x+1) = 45 -> 3x = 45 -> x=15. Los números son 14, 15, 16." },
+            { id: 117, q: "Si el área de un cuadrado es 64 cm², ¿cuál es su perímetro?", o: ["32 cm", "16 cm", "24 cm", "64 cm"], a: "32 cm", s: "Lado = √64 = 8. Perímetro = 8 * 4 = 32 cm." },
+            { id: 118, q: "Se compran 3 libros por 45 Bs. ¿Cuántos libros se pueden comprar con 105 Bs?", o: ["7", "6", "8", "9"], a: "7", s: "Precio unitario: 45/3 = 15. Cantidad: 105 / 15 = 7." },
+            { id: 119, q: "Un coche recorre 120 km en 1.5 horas. ¿Cuál es su velocidad media?", o: ["80 km/h", "90 km/h", "100 km/h", "75 km/h"], a: "80 km/h", s: "V = D/T = 120 / 1.5 = 80 km/h." },
+            { id: 120, q: "¿Cuántos minutos hay en 3/4 de hora?", o: ["45", "30", "15", "40"], a: "45", s: "60 * 3/4 = 45 minutos." },
+            { id: 121, q: "Si x + 5 = 12 y y - 3 = 10, ¿cuánto es x + y?", o: ["20", "18", "22", "15"], a: "20", s: "x = 7, y = 13. x + y = 20." },
+            { id: 122, q: "Un examen tiene 20 preguntas. Si un alumno responde bien el 85%, ¿cuántas falló?", o: ["3", "4", "2", "5"], a: "3", s: "Bien: 20 * 0.85 = 17. Mal: 20 - 17 = 3." },
+            { id: 123, q: "Si multiplicas un número por 3 y le restas 5 obtienes 16. ¿Cuál es el número?", o: ["7", "6", "8", "5"], a: "7", s: "3x - 5 = 16 -> 3x = 21 -> x = 7." },
+            { id: 124, q: "¿Cuál es el valor de 2 elevado a la 5?", o: ["32", "16", "64", "25"], a: "32", s: "2*2*2*2*2 = 32." },
+            { id: 125, q: "En una biblioteca de 200 libros, el 40% son de matemáticas. ¿Cuántos NO son de matemáticas?", o: ["120", "80", "160", "100"], a: "120", s: "Matemáticas: 80. Resto: 200 - 80 = 120." },
+            { id: 126, q: "Si una docena de huevos cuesta 12 Bs, ¿cuánto cuestan 30 huevos?", o: ["30 Bs", "24 Bs", "36 Bs", "15 Bs"], a: "30 Bs", s: "Si 12 cuestan 12, cada uno cuesta 1 Bs. 30 cuestan 30 Bs." },
+            { id: 127, q: "Ana tiene el doble de Bea y Bea el triple de Cati. Si Cati tiene 2 años, ¿cuántos tiene Ana?", o: ["12", "6", "10", "8"], a: "12", s: "Cati=2. Bea=6. Ana=12." },
+            { id: 128, q: "Un tren de 100m pasa por un túnel de 200m a 10m/s. ¿Cuánto tarda en salir totalmente?", o: ["30 s", "20 s", "10 s", "15 s"], a: "30 s", s: "Distancia: 100+200 = 300m. Tiempo: 300/10 = 30s." },
+            { id: 129, q: "Si 1/2 + 1/4 = x, ¿cuál es el valor de x?", o: ["3/4", "2/6", "1/6", "1/2"], a: "3/4", s: "0.5 + 0.25 = 0.75 (3/4)." },
+            { id: 130, q: "Un capital de 1000 Bs al 10% anual simple. ¿Cuánto habrá tras 2 años?", o: ["1200 Bs", "1100 Bs", "1020 Bs", "1210 Bs"], a: "1200 Bs", s: "Interés: 1000 * 0.10 * 2 = 200. Total: 1200 Bs." },
+            { id: 131, q: "¿Qué número sigue en la secuencia: 1, 4, 9, 16, 25, ...?", o: ["36", "30", "49", "32"], a: "36", s: "Cuadrados perfectos: 1², 2², 3², 4², 5², 6² (36)." },
+            { id: 132, q: "Si a : b = 3 : 2 y b = 10, ¿cuál es el valor de a?", o: ["15", "12", "20", "30"], a: "15", s: "a/10 = 3/2 -> a = 15." },
+            { id: 133, q: "Si se duplica la base de un rectángulo de 10x5, ¿qué pasa con el área?", o: ["Se duplica", "Se cuadruplica", "No cambia", "Aumenta 10"], a: "Se duplica", s: "Área original: 50. Nueva (20x5): 100." },
+            { id: 134, q: "En una clase de 30 alumnos, el 60% son mujeres. ¿Cuántos varones hay?", o: ["12", "18", "15", "10"], a: "12", s: "Mujeres: 18. Varones: 12." },
+            { id: 135, q: "Al lanzar dos monedas, ¿probabilidad de que ambas sean cara?", o: ["1/4", "1/2", "1/3", "3/4"], a: "1/4", s: "Casos: CC, CX, XC, XX. 1 de 4." },
+            { id: 136, q: "¿Cuál es el 15% de 80?", o: ["12", "10", "15", "8"], a: "12", s: "80 * 0.15 = 12." },
+            { id: 137, q: "Cilindro con r=2, h=10, π=3. ¿Volumen?", o: ["120 cm³", "60 cm³", "40 cm³", "80 cm³"], a: "120 cm³", s: "V = 3 * 2² * 10 = 120." },
+            { id: 138, q: "Si 2x - 4 = 10, entonces x² es:", o: ["49", "25", "36", "14"], a: "49", s: "x = 7. x² = 49." },
+            { id: 139, q: "2 kg harina para 30 panes. ¿Harina para 75 panes?", o: ["5 kg", "4 kg", "6 kg", "4.5 kg"], a: "5 kg", s: "75 / (30/2) = 5 kg." },
+            { id: 140, q: "Perímetro triángulo equilátero es 18 cm. ¿Lado?", o: ["6 cm", "9 cm", "3 cm", "12 cm"], a: "6 cm", s: "18 / 3 = 6." },
+            { id: 141, q: "Hoy es martes. ¿Qué día será dentro de 50 días?", o: ["Miércoles", "Jueves", "Viernes", "Martes"], a: "Miércoles", s: "50 mod 7 = 1. Un día tras martes es miércoles." },
+            { id: 142, q: "Valor de x en: 3(x - 2) = 12", o: ["6", "4", "8", "10"], a: "6", s: "x - 2 = 4 -> x = 6." },
+            { id: 143, q: "Ganó 12, empató 5, perdió 3. ¿Porcentaje perdidos?", o: ["15%", "10%", "20%", "25%"], a: "15%", s: "3 / 20 * 100 = 15%." },
+            { id: 144, q: "Pintura cubre 10m²/L. ¿Para pared de 4m x 2.5m?", o: ["1 L", "2 L", "0.5 L", "1.5 L"], a: "1 L", s: "Área: 10m². Necesita 1 Litro." },
+            { id: 145, q: "¿MCD de 12 y 18?", o: ["6", "2", "3", "36"], a: "6", s: "Divisores comunes: 1, 2, 3, 6. Máximo es 6." },
+            { id: 146, q: "a + b = 10; a - b = 2. ¿a² - b²?", o: ["20", "12", "8", "100"], a: "20", s: "(a+b)(a-b) = 10 * 2 = 20." },
+            { id: 147, q: "Depósito de 500L se vacía a 20 L/min. ¿En cuánto queda la mitad?", o: ["12.5 min", "25 min", "10 min", "15 min"], a: "12.5 min", s: "Vaciar 250L: 250 / 20 = 12.5." },
+            { id: 148, q: "2/5 probabilidad menta en 20 caramelos. ¿Cuántos limón?", o: ["12", "8", "10", "15"], a: "12", s: "Menta: 8. Limón: 20 - 8 = 12." }
+        ];
+
+        let currentQuestionIdx = 0;
+        let score = 0;
+        let timeLeft = 3600;
+        let timerInterval;
+
+        function startQuiz() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('timer-display').classList.remove('hidden');
+            document.getElementById('timer-display').classList.add('flex');
+            
+            startTimer();
+            showQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                document.getElementById('time').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const q = QUESTIONS_DATA[currentQuestionIdx];
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('progress-text').innerText = `Pregunta ${currentQuestionIdx + 1} de ${QUESTIONS_DATA.length}`;
+            document.getElementById('score-live').innerText = `Puntos: ${score}`;
+            
+            const progress = ((currentQuestionIdx) / QUESTIONS_DATA.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            const optionsGrid = document.getElementById('options-grid');
+            optionsGrid.innerHTML = '';
+            
+            q.o.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn text-left p-5 rounded-2xl border-2 border-slate-100 font-semibold text-lg hover:bg-cyan-50 transition-all';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt, btn);
+                optionsGrid.appendChild(btn);
+            });
+
+            document.getElementById('feedback').classList.add('hidden');
+        }
+
+        function checkAnswer(selected, btn) {
+            const q = QUESTIONS_DATA[currentQuestionIdx];
+            const allButtons = document.querySelectorAll('.option-btn');
+            
+            allButtons.forEach(b => b.disabled = true);
+
+            if (selected === q.a) {
+                btn.classList.add('correct');
+                score++;
+            } else {
+                btn.classList.add('incorrect');
+                // Mostrar la correcta
+                allButtons.forEach(b => {
+                    if (b.innerText === q.a) b.classList.add('correct');
+                });
+            }
+
+            document.getElementById('sustento-text').innerText = q.s;
+            document.getElementById('feedback').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIdx++;
+            if (currentQuestionIdx < QUESTIONS_DATA.length) {
+                showQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('timer-display').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const percent = Math.round((score / QUESTIONS_DATA.length) * 100);
+            document.getElementById('final-score').innerText = `${score}/${QUESTIONS_DATA.length}`;
+            document.getElementById('final-percent').innerText = `${percent}%`;
+
+            let label = "";
+            let color = "";
+            if (percent >= 80) { label = "Sobresaliente"; color = "text-green-600"; }
+            else if (percent >= 50) { label = "Regular"; color = "text-yellow-600"; }
+            else { label = "Insuficiente"; color = "text-red-600"; }
+
+            const labelEl = document.getElementById('performance-label');
+            labelEl.innerText = label;
+            labelEl.className = `text-2xl font-black uppercase italic ${color}`;
+        }
+    </script>
+</body>
+</html>

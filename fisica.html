@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONOCIMIENTOS GENERALES - FÍSICA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%);
+            color: #1a2a33; /* Azul petróleo profundo */
+            min-height: 100vh;
+        }
+        .option-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            background-color: #f0fdfa;
+            border-color: #99f6e4;
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b;
+        }
+        .progress-bar {
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header / Nav -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-8">
+        <a href="land_pag.html" class="bg-white px-4 py-2 rounded-lg shadow-sm border border-teal-100 text-teal-700 font-semibold hover:bg-teal-50 transition">
+            ← Volver
+        </a>
+        <div class="text-right">
+            <p class="text-sm font-bold text-teal-600 uppercase tracking-wider">Simulador Académico</p>
+            <h1 class="text-xl font-bold">CONOCIMIENTOS GENERALES - FÍSICA</h1>
+        </div>
+    </div>
+
+    <main class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-teal-50">
+        <!-- Progress Bar -->
+        <div class="h-2 bg-teal-50 w-full">
+            <div id="progressBar" class="h-full bg-teal-400 progress-bar" style="width: 0%"></div>
+        </div>
+
+        <div class="p-6 md:p-10">
+            <!-- Stats Bar -->
+            <div class="flex justify-between items-center mb-8 text-sm font-medium text-gray-500">
+                <span id="questionCounter">Pregunta 1 de 20</span>
+                <div class="flex items-center gap-2 bg-teal-50 px-3 py-1 rounded-full text-teal-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span id="timer">30:00</span>
+                </div>
+            </div>
+
+            <!-- Quiz Container -->
+            <div id="quiz">
+                <div id="questionArea">
+                    <h2 id="questionText" class="text-2xl font-bold mb-6 leading-tight">Cargando pregunta...</h2>
+                    <div id="optionsContainer" class="space-y-4">
+                        <!-- Options will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Feedback Area -->
+                <div id="feedbackArea" class="hidden mt-8 p-6 rounded-xl border animate-in fade-in duration-500">
+                    <h3 id="feedbackTitle" class="font-bold text-lg mb-2"></h3>
+                    <p id="feedbackContent" class="text-sm leading-relaxed mb-4"></p>
+                    <button onclick="nextQuestion()" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl hover:bg-teal-700 transition shadow-lg shadow-teal-100">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Container -->
+            <div id="results" class="hidden text-center py-10">
+                <div class="mb-6">
+                    <div id="scoreCircle" class="inline-flex items-center justify-center w-32 h-32 rounded-full border-8 border-teal-500 text-3xl font-black text-teal-600 mb-4">
+                        0%
+                    </div>
+                    <h2 id="performanceTitle" class="text-3xl font-bold mb-2">¡Completado!</h2>
+                    <p id="scoreText" class="text-gray-600 mb-8 text-lg">Has respondido correctamente X de 20 preguntas.</p>
+                </div>
+                
+                <button onclick="restartQuiz()" class="bg-teal-600 text-white font-bold px-8 py-3 rounded-xl hover:bg-teal-700 transition">
+                    Reiniciar simulador
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-12 text-center text-gray-400 text-sm max-w-2xl mx-auto space-y-2">
+        <p>@victor 2026 - SIMULADOR ACADÉMICO DE CONOCIMIENTOS GENERALES - FÍSICA</p>
+        <p class="italic font-medium text-teal-600">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+    </footer>
+
+    <script>
+        const questions = [
+            {
+                q: "Un cuerpo se desplaza en línea recta recorriendo distancias iguales en intervalos de tiempo iguales. Desde la cinemática, ¿qué característica define este tipo de movimiento?",
+                options: [
+                    "Presenta una aceleración constante distinta de cero.",
+                    "Se caracteriza por una aceleración nula ya que no hay cambio en la velocidad.",
+                    "La velocidad varía de forma proporcional al tiempo transcurrido.",
+                    "El cuerpo cambia su dirección de manera constante."
+                ],
+                correct: 1,
+                sustento: "En el movimiento rectilíneo uniforme, la velocidad permanece constante tanto en magnitud como en dirección, lo que implica que el cuerpo recorre distancias iguales en tiempos iguales. Desde la cinemática, este tipo de movimiento se caracteriza por una aceleración nula, ya que no hay cambio en la velocidad."
+            },
+            {
+                q: "En física, la aceleración es una magnitud fundamental para describir el movimiento. ¿Qué expresa correctamente el concepto de aceleración?",
+                options: [
+                    "Es la distancia total recorrida dividida por el tiempo empleado.",
+                    "Es una magnitud escalar que mide solo la rapidez de un cuerpo.",
+                    "Es una magnitud vectorial que mide la variación de la velocidad con respecto al tiempo.",
+                    "Es la propiedad de los cuerpos de mantener su estado de reposo."
+                ],
+                correct: 2,
+                sustento: "La aceleración es una magnitud vectorial que mide la variación de la velocidad con respecto al tiempo, ya sea en magnitud, dirección o sentido. Esto significa que un cuerpo puede estar acelerado, aunque mantenga una rapidez constante si cambia de dirección."
+            },
+            {
+                q: "Un objeto cae verticalmente bajo la acción exclusiva de la gravedad, despreciando la resistencia del aire. ¿Qué tipo de movimiento describe esta situación?",
+                options: [
+                    "Movimiento rectilíneo uniforme con velocidad constante.",
+                    "Movimiento uniformemente acelerado con aceleración constante debida a la gravedad.",
+                    "Movimiento parabólico sin aceleración vertical.",
+                    "Movimiento circular uniforme debido a la rotación terrestre."
+                ],
+                correct: 1,
+                sustento: "La caída libre es un ejemplo de movimiento uniformemente acelerado, ya que el objeto experimenta una aceleración constante debida a la gravedad. En este tipo de movimiento, la velocidad cambia de manera uniforme con el tiempo."
+            },
+            {
+                q: "La primera ley de Newton establece una condición fundamental sobre el estado de movimiento de los cuerpos. ¿Qué afirma esta ley?",
+                options: [
+                    "Todo cuerpo requiere una fuerza neta constante para mantenerse en movimiento.",
+                    "La aceleración es directamente proporcional a la masa del objeto.",
+                    "Un cuerpo conserva su estado de reposo o de movimiento rectilíneo uniforme mientras la fuerza neta sea cero.",
+                    "A cada acción le corresponde siempre una reacción igual y opuesta."
+                ],
+                correct: 2,
+                sustento: "La primera ley de Newton, también llamada ley de la inercia establece que un cuerpo conserva su estado de reposo o de movimiento rectilíneo uniforme mientras la fuerza neta que actúa sobre él sea cero. Este principio introduce la idea de que no se necesita una fuerza para mantener el movimiento, sino para modificarlo."
+            },
+            {
+                q: "La inercia es una propiedad fundamental de la materia. ¿Cómo se define correctamente?",
+                options: [
+                    "La capacidad de los cuerpos de acelerar espontáneamente.",
+                    "La propiedad de los cuerpos de oponerse a cambios en su estado de reposo o movimiento.",
+                    "La fuerza de atracción que ejerce la Tierra sobre los objetos.",
+                    "La velocidad máxima que puede alcanzar un cuerpo en el vacío."
+                ],
+                correct: 1,
+                sustento: "La inercia es la propiedad que tienen los cuerpos de oponerse a cambios en su estado de reposo o de movimiento. Cuanto mayor es la masa de un cuerpo, mayor es su inercia."
+            },
+            {
+                q: "Según la segunda ley de Newton, la aceleración de un cuerpo depende de:",
+                options: [
+                    "Únicamente de la forma geométrica del objeto.",
+                    "Es directamente proporcional a la fuerza neta e inversamente proporcional a su masa.",
+                    "Es inversamente proporcional a la fuerza neta y directamente proporcional a la masa.",
+                    "Depende exclusivamente del tiempo durante el cual se aplica la fuerza."
+                ],
+                correct: 1,
+                sustento: "La segunda ley de Newton establece que la aceleración de un cuerpo es directamente proporcional a la fuerza neta que actúa sobre él e inversamente proporcional a su masa. Matemáticamente se expresa como F=m·a."
+            },
+            {
+                q: "¿Cuál de las siguientes opciones define de manera más adecuada el concepto de fuerza, considerando su efecto sobre los cuerpos?",
+                options: [
+                    "Una propiedad intrínseca de los objetos que les permite moverse solos.",
+                    "Una magnitud escalar que mide la cantidad de energía de un sistema.",
+                    "Una interacción entre cuerpos capaz de modificar su estado de movimiento o producir deformaciones.",
+                    "La medida de la rapidez con la que un objeto cambia su posición."
+                ],
+                correct: 2,
+                sustento: "Desde la Física, la fuerza se entiende como una interacción entre cuerpos que tiene la capacidad de modificar su estado de movimiento -provocando aceleraciones, cambios de dirección o variaciones de rapidez- o de producir deformaciones en su estructura."
+            },
+            {
+                q: "¿En cuál de las siguientes situaciones se realiza trabajo mecánico?",
+                options: [
+                    "Cuando se sostiene una maleta pesada sin moverse del sitio.",
+                    "Cuando una fuerza aplicada sobre un cuerpo genera un desplazamiento en la dirección de la fuerza.",
+                    "Cuando un objeto gira en círculos sin cambiar su energía cinética.",
+                    "Cuando se aplica una fuerza contra una pared que no se mueve."
+                ],
+                correct: 1,
+                sustento: "El trabajo mecánico se produce cuando una fuerza aplicada sobre un cuerpo genera un desplazamiento en la dirección de la fuerza, lo que da lugar a una transferencia de energía. Si no existe desplazamiento, no se realiza trabajo mecánico."
+            },
+            {
+                q: "Según el principio de conservación de la energía, ¿cuál de las siguientes afirmaciones es correcta?",
+                options: [
+                    "La energía puede crearse en procesos de alta temperatura.",
+                    "La energía total de un sistema aislado desaparece gradualmente por el roce.",
+                    "La energía total de un sistema aislado permanece constante; se transforma pero no se crea ni se destruye.",
+                    "La energía potencial es siempre mayor que la energía cinética en cualquier sistema."
+                ],
+                correct: 2,
+                sustento: "El principio de conservación de la energía establece que la energía total de un sistema aislado permanece constante, independientemente de los cambios que experimente dicho sistema. La energía puede transformarse entre diferentes formas, pero la cantidad total se mantiene invariable."
+            },
+            {
+                q: "Un objeto se mueve sin rozamiento bajo la acción exclusiva de fuerzas conservativas. ¿Qué ocurre con su energía mecánica total?",
+                options: [
+                    "Disminuye constantemente debido a la pérdida de calor.",
+                    "La energía mecánica total se conserva (la suma de cinética y potencial permanece constante).",
+                    "Aumenta exponencialmente con la altura del objeto.",
+                    "Se convierte totalmente en energía eléctrica tras un tiempo."
+                ],
+                correct: 1,
+                sustento: "Cuando un sistema está sometido únicamente a fuerzas conservativas, la energía mecánica total se conserva. Esto significa que la suma de la energía cinética y la energía potencial permanece constante."
+            },
+            {
+                q: "Desde el punto de vista físico, el campo eléctrico se define como:",
+                options: [
+                    "La corriente que circula por un cable de cobre.",
+                    "La fuerza eléctrica que actúa sobre una carga de prueba positiva dividida entre el valor de dicha carga.",
+                    "La energía luminosa que emite un protón en movimiento.",
+                    "El magnetismo que atrae a los metales ferrosos."
+                ],
+                correct: 1,
+                sustento: "El campo eléctrico es una magnitud vectorial que describe la influencia eléctrica que una carga produce en el espacio que la rodea. Se define como la fuerza eléctrica que actúa sobre una carga de prueba positiva dividida entre el valor de dicha carga."
+            },
+            {
+                q: "Un conductor rectilíneo es recorrido por una corriente eléctrica constante. ¿Qué fenómeno físico se genera alrededor del conductor?",
+                options: [
+                    "Un vacío absoluto de partículas gravitacionales.",
+                    "Un campo magnético circular en el espacio que rodea al conductor.",
+                    "Una onda sonora de alta frecuencia perceptible al oído humano.",
+                    "Una disminución de la temperatura ambiente inmediata."
+                ],
+                correct: 1,
+                sustento: "Cuando una corriente eléctrica circula por un conductor, se genera un campo magnético en el espacio que lo rodea, según lo establecido por las leyes del electromagnetismo. Este campo tiene forma circular alrededor del conductor."
+            },
+            {
+                q: "Una onda mecánica se propaga a través de un medio material. ¿Qué propiedad caracteriza a este tipo de ondas?",
+                options: [
+                    "Pueden propagarse fácilmente en el vacío intergaláctico.",
+                    "No transportan energía, solo materia sólida.",
+                    "Necesitan obligatoriamente un medio material (sólido, líquido o gas) para propagarse.",
+                    "Tienen una velocidad infinita independientemente del medio."
+                ],
+                correct: 2,
+                sustento: "Las ondas mecánicas necesitan un medio material para propagarse, ya que consisten en la transmisión de una perturbación a través de las partículas del medio. Ejemplos de estas ondas son el sonido y las ondas en una cuerda."
+            },
+            {
+                q: "En el plano cartesiano, una recta pasa por los puntos (0,2) y (2,6). ¿Cuál es la pendiente de la recta?",
+                options: [
+                    "Pendiente = 4",
+                    "Pendiente = 2",
+                    "Pendiente = 3",
+                    "Pendiente = 0.5"
+                ],
+                correct: 1,
+                sustento: "La pendiente se calcula como el cambio en y (6-2=4) dividido entre el cambio en x (2-0=2), por lo que la pendiente es 4/2 = 2. Este concepto es esencial para interpretar funciones lineales."
+            },
+            {
+                q: "En el estudio de los circuitos eléctricos, ¿entre cuáles variables establece relación la Ley de Ohm?",
+                options: [
+                    "Masa, aceleración y gravedad.",
+                    "Voltaje, Corriente y Resistencia.",
+                    "Potencia, Energía y Tiempo.",
+                    "Carga, Distancia y Fuerza eléctrica."
+                ],
+                correct: 1,
+                sustento: "La ley de Ohm establece que la corriente eléctrica que circula por un conductor es directamente proporcional al voltaje aplicado e inversamente proporcional a la resistencia del material, expresada como V=I·R."
+            },
+            {
+                q: "Un objeto se mueve con velocidad constante en línea recta. ¿Cuál de las siguientes afirmaciones es correcta?",
+                options: [
+                    "La aceleración del objeto es nula.",
+                    "La fuerza neta aplicada es mayor a su masa.",
+                    "El objeto está en caída libre permanente.",
+                    "La aceleración aumenta de forma cuadrática."
+                ],
+                correct: 0,
+                sustento: "Cuando un objeto se mueve con velocidad constante, no hay cambio en la magnitud ni en la dirección de la velocidad. Dado que la aceleración mide la variación de la velocidad, en este caso la aceleración es nula."
+            },
+            {
+                q: "¿Cómo se clasifica el sonido según el tipo de vibración de las partículas del medio?",
+                options: [
+                    "Onda electromagnética transversal.",
+                    "Onda mecánica longitudinal.",
+                    "Onda gravitacional circular.",
+                    "Onda superficial estática."
+                ],
+                correct: 1,
+                sustento: "El sonido es una onda mecánica longitudinal, ya que requiere un medio material para propagarse y las partículas de dicho medio vibran en la misma dirección en la que avanza la onda."
+            },
+            {
+                q: "En el estudio de los fenómenos térmicos, ¿cómo se define correctamente el calor?",
+                options: [
+                    "La temperatura interna que posee un cuerpo en reposo.",
+                    "La energía que se transfiere entre cuerpos debido a una diferencia de temperatura.",
+                    "La suma de protones y electrones de un átomo caliente.",
+                    "Una sustancia fluida llamada calórico que llena los metales."
+                ],
+                correct: 1,
+                sustento: "En Física, el calor se define como la energía que se transfiere entre dos cuerpos o sistemas debido a una diferencia de temperatura. No es una energía que un cuerpo posea, sino un proceso de transferencia."
+            },
+            {
+                q: "¿Cuál es la finalidad principal del uso de un modelo físico?",
+                options: [
+                    "Reproducir la realidad de manera exacta sin ninguna simplificación.",
+                    "Servir como una representación simplificada para comprender, explicar y predecir fenómenos.",
+                    "Sustituir la experimentación por dibujos artísticos.",
+                    "Complicar el análisis de las variables secundarias."
+                ],
+                correct: 1,
+                sustento: "Un modelo físico es una representación simplificada de un fenómeno real que se construye para comprender, explicar y predecir su comportamiento, aislando las variables más relevantes."
+            },
+            {
+                q: "En el MRU, si un objeto recorre 10 metros en 2 segundos, ¿cuánto recorrerá en los siguientes 2 segundos?",
+                options: [
+                    "5 metros",
+                    "20 metros",
+                    "10 metros",
+                    "Depende de la gravedad aplicada"
+                ],
+                correct: 2,
+                sustento: "Por definición del Movimiento Rectilíneo Uniforme (MRU), el cuerpo recorre distancias iguales en intervalos de tiempo iguales. Si recorrió 10m en 2s, recorrerá otros 10m en los siguientes 2s."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60; // 30 minutos
+        let timerId;
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('questionCounter').textContent = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+            document.getElementById('questionText').textContent = q.q;
+            document.getElementById('progressBar').style.width = `${((currentQuestion) / questions.length) * 100}%`;
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const div = document.createElement('div');
+                div.className = 'option-card bg-white p-4 rounded-xl border border-gray-200 text-base font-medium hover:shadow-md';
+                div.textContent = opt;
+                div.onclick = () => checkAnswer(index);
+                container.appendChild(div);
+            });
+
+            document.getElementById('feedbackArea').classList.add('hidden');
+            document.getElementById('questionArea').classList.remove('opacity-50', 'pointer-events-none');
+        }
+
+        function checkAnswer(selectedIndex) {
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option-card');
+            
+            // Bloquear clics adicionales
+            document.getElementById('questionArea').classList.add('opacity-50', 'pointer-events-none');
+
+            if (selectedIndex === q.correct) {
+                options[selectedIndex].classList.add('correct');
+                score++;
+                showFeedback(true, q.sustento);
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                showFeedback(false, q.sustento);
+            }
+        }
+
+        function showFeedback(isCorrect, sustento) {
+            const area = document.getElementById('feedbackArea');
+            const title = document.getElementById('feedbackTitle');
+            const content = document.getElementById('feedbackContent');
+
+            area.classList.remove('hidden');
+            area.className = isCorrect ? 
+                'mt-8 p-6 rounded-xl border border-green-200 bg-green-50 text-green-800' : 
+                'mt-8 p-6 rounded-xl border border-red-200 bg-red-50 text-red-800';
+            
+            title.textContent = isCorrect ? '¡Correcto!' : 'Respuesta Incorrecta';
+            content.innerHTML = `<strong>Sustento:</strong> ${sustento}`;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            clearInterval(timerId);
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('progressBar').style.width = `100%`;
+
+            const percentage = Math.round((score / questions.length) * 100);
+            const scoreCircle = document.getElementById('scoreCircle');
+            scoreCircle.textContent = `${percentage}%`;
+
+            let performance = "";
+            let color = "";
+
+            if (percentage >= 85) {
+                performance = "DESEMPEÑO ALTO";
+                color = "text-green-600";
+            } else if (percentage >= 60) {
+                performance = "DESEMPEÑO MEDIO";
+                color = "text-yellow-600";
+            } else {
+                performance = "DESEMPEÑO BAJO";
+                color = "text-red-600";
+            }
+
+            document.getElementById('performanceTitle').textContent = performance;
+            document.getElementById('performanceTitle').className = `text-3xl font-black mb-2 ${color}`;
+            document.getElementById('scoreText').textContent = `Has respondido correctamente ${score} de ${questions.length} preguntas.`;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            timeLeft = 30 * 60;
+            document.getElementById('quiz').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            startTimer();
+            loadQuestion();
+        }
+
+        // Iniciar al cargar
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>

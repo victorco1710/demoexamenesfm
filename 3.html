@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador: Historia del Internet en Bolivia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f1 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a2e35; /* Azul petróleo profundo */
+        }
+        h1, h2 { font-family: 'Montserrat', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e2e8f0;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: #4fd1c5;
+            background-color: #f0fff4;
+            transform: translateY(-2px);
+        }
+        .correct { border-color: #48bb78 !important; background-color: #f0fff4 !important; color: #2f855a; }
+        .incorrect { border-color: #f56565 !important; background-color: #fff5f5 !important; color: #c53030; }
+        .progress-bar { transition: width 0.5s ease-in-out; }
+        .hidden { display: none; }
+        .btn-vibrant {
+            background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn-vibrant:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(56, 178, 172, 0.4);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header / Volver -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-6">
+        <a href="land_pag.html" class="text-teal-600 font-semibold flex items-center hover:underline">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver
+        </a>
+        <div id="timer" class="text-xl font-bold text-teal-700 bg-white px-4 py-2 rounded-full shadow-sm">
+            30:00
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto">
+        
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="glass-card p-8 text-center space-y-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 leading-tight">
+                Historia y evolución del Internet en Bolivia: de los primeros enlaces a la era de la conectividad 5G
+            </h1>
+            <p class="text-gray-600 text-lg">Simulador Académico de Comprensión Lectora basado en el repositorio oficial.</p>
+            <div class="bg-teal-50 p-4 rounded-xl text-teal-800 font-medium italic">
+                "Con esfuerzo lograrás el éxito, no desmayes"
+            </div>
+            <button onclick="startQuiz()" class="btn-vibrant px-8 py-4 rounded-full text-lg font-bold">
+                Comenzar Simulacro
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden space-y-6">
+            <!-- Barra de Progreso -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-2 overflow-hidden">
+                <div id="progress" class="progress-bar bg-teal-500 h-full w-0"></div>
+            </div>
+            <p id="q-count" class="text-sm font-semibold text-teal-700">Pregunta 1 de 30</p>
+
+            <div class="glass-card p-6 md:p-10">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 leading-snug"></h2>
+                
+                <div id="options-container" class="grid gap-4">
+                    <!-- Opciones cargadas dinámicamente -->
+                </div>
+
+                <!-- Retroalimentación -->
+                <div id="feedback" class="hidden mt-8 p-6 rounded-xl border-l-4">
+                    <p id="feedback-status" class="font-bold text-lg mb-2"></p>
+                    <p id="feedback-text" class="text-gray-700 italic leading-relaxed"></p>
+                    <button onclick="nextQuestion()" class="mt-6 bg-gray-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-black transition-colors">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados Finales -->
+        <div id="result-screen" class="hidden glass-card p-10 text-center space-y-6">
+            <h2 class="text-3xl font-bold text-gray-800">Resultado Final</h2>
+            <div class="flex justify-center items-center space-x-8">
+                <div>
+                    <p class="text-5xl font-extrabold text-teal-600" id="final-score">0</p>
+                    <p class="text-gray-500 uppercase tracking-widest text-xs font-bold mt-2">Puntaje</p>
+                </div>
+                <div class="h-16 w-px bg-gray-200"></div>
+                <div>
+                    <p class="text-5xl font-extrabold text-teal-600" id="final-percent">0%</p>
+                    <p class="text-gray-500 uppercase tracking-widest text-xs font-bold mt-2">Logro</p>
+                </div>
+            </div>
+
+            <div id="performance-badge" class="py-3 px-6 rounded-full inline-block font-bold text-white uppercase tracking-wider">
+                DESEMPEÑO: ALTO
+            </div>
+
+            <p id="result-message" class="text-xl text-gray-700"></p>
+            
+            <button onclick="resetQuiz()" class="btn-vibrant px-8 py-3 rounded-full font-bold">
+                Reiniciar simulador
+            </button>
+
+            <footer class="pt-8 border-t border-gray-100">
+                <p class="text-gray-400 text-sm">SIMULADOR ACADÉMICO DE COMPRENSIÓN LECTORA</p>
+                <p class="text-teal-600 font-bold italic mt-2">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+            </footer>
+        </div>
+
+    </main>
+
+    <script>
+        // Datos de las preguntas (basados estrictamente en el PDF analizado)
+        // Se han derivado opciones plausibles basándose en el contenido del texto para mantener la dificultad.
+        const questions = [
+            {
+                q: "¿Cómo define el artículo el concepto de acceso dial up?",
+                options: [
+                    "Conexión mediante fibra óptica con velocidades de hasta 10 Mbps.",
+                    "Uso de la línea telefónica convencional para conectar a Internet a velocidades de 56 kbps.",
+                    "Acceso satelital permanente gestionado por universidades nacionales.",
+                    "Convergencia de redes móviles de cuarta generación en zonas rurales."
+                ],
+                correct: 1,
+                sustento: "El artículo describe el acceso dial up a la forma cómo 'utilizaban la línea telefónica convencional para conectar a Internet a velocidades de 56 kbps'."
+            },
+            {
+                q: "¿Cuáles son los sectores que se indican como beneficiados por la expansión del Internet en Bolivia?",
+                options: [
+                    "Minería, transporte pesado y exportaciones de gas.",
+                    "Educación, comercio electrónico y salud.",
+                    "Defensa nacional, banca tradicional y agricultura intensiva.",
+                    "Industria manufacturera, hotelería y turismo receptivo."
+                ],
+                correct: 1,
+                sustento: "El artículo señala explícitamente que el acceso generalizado ha transformado la educación (clases a distancia), el comercio electrónico (Tiendas del Valle) y ha mejorado la salud mediante la telemedicina."
+            },
+            {
+                q: "¿Cuáles son las implicaciones económicas asociadas a la expansión de la banda ancha y la fibra óptica entre 2006 y 2015?",
+                options: [
+                    "Incremento de precios a 30 dólares mensuales para compensar la inversión.",
+                    "Inversión de 350 millones de dólares y reducción de precios de planes a aproximadamente 15 dólares.",
+                    "Cese de subsidios estatales para priorizar la inversión privada extranjera.",
+                    "Aumento de la latencia en el servicio dial up para hogares rurales."
+                ],
+                correct: 1,
+                sustento: "Se indica una inversión estimada de 350 millones de dólares, reducción de precios a 15 dólares mensuales para 10 Mbps y el auge del comercio electrónico."
+            },
+            {
+                q: "¿Cuál es la tercera etapa de la conectividad descrita en la evolución del Internet en Bolivia?",
+                options: [
+                    "La era satelital de la UMSA (1995).",
+                    "Expansión de banda ancha mediante cableado de cobre.",
+                    "Convergencia móvil, 4G y la llegada de 5G.",
+                    "Implementación exclusiva de la red dial up doméstica."
+                ],
+                correct: 2,
+                sustento: "El artículo enumera tres subetapas: 2.1 era dial up, 2.2 expansión de banda ancha y fibra óptica, y 2.3 convergencia móvil, 4G y la llegada de 5G."
+            },
+            {
+                q: "¿Cuál es el orden cronológico de los principales actores que lideraron cada fase de la conectividad en Bolivia?",
+                options: [
+                    "Gobierno (RIB), UMSA, Entel, Viva Bolivia.",
+                    "UMSA, Gobierno (RIB), Entel, Viva Bolivia.",
+                    "Viva Bolivia, Entel, UMSA, Gobierno (RIB).",
+                    "Entel, UMSA, Viva Bolivia, Gobierno (RIB)."
+                ],
+                correct: 1,
+                sustento: "Primero la UMSA (1995), luego el Gobierno (2006 con RIB), después Entel (2016 con 4G) y finalmente Viva Bolivia (2022 con prueba 5G)."
+            },
+            {
+                q: "¿Qué porcentaje de la población boliviana se espera que tenga acceso a redes 5G para finales de 2024?",
+                options: ["12%", "38%", "20%", "68%"],
+                correct: 2,
+                sustento: "Para finales de 2024, según el artículo, se espera que el 20% de la población tenga acceso a 5G."
+            },
+            {
+                q: "¿Qué principio general se extrae sobre el rol de la infraestructura tecnológica en la inclusión digital según el artículo?",
+                options: [
+                    "La infraestructura urbana garantiza automáticamente la inclusión rural.",
+                    "El aumento de cobertura urbana y reducción de precios no elimina por sí sola la brecha rural.",
+                    "La inversión privada es el único factor determinante para la conectividad universal.",
+                    "La fibra óptica ha sido sustituida completamente por las redes satelitales."
+                ],
+                correct: 1,
+                sustento: "Pese a la fibra óptica y 5G, en 2023 el 68% de hogares rurales carecen de acceso, por lo que se requieren políticas específicas como subsidios."
+            },
+            {
+                q: "¿Cuál de las siguientes afirmaciones describe mejor la evolución de la brecha entre hogares urbanos y rurales entre 2003 y 2015?",
+                options: [
+                    "La brecha se cerró completamente gracias a los cibercafés.",
+                    "La diferencia aumentó de aproximadamente 4 puntos porcentuales en 2003 a 26 puntos en 2015.",
+                    "La penetración rural superó a la urbana en el periodo 2006-2012.",
+                    "La brecha se mantuvo estática en 12 puntos porcentuales."
+                ],
+                correct: 1,
+                sustento: "En 2003 la diferencia era de 4 puntos (5% vs <1%). En 2015 era de 26 puntos (38% vs 12%), mostrando un aumento de la brecha de 22 puntos."
+            },
+            {
+                q: "¿Qué efecto se deduce de la implementación del proyecto 'Red de Información Boliviana' (2006-2015) sobre los hogares urbanos?",
+                options: [
+                    "Reducción de la cobertura al 5% por falta de mantenimiento.",
+                    "Aumento de la penetración del 5% al 38% y reducción de precios de los planes.",
+                    "Eliminación total del uso de cibercafés en ciudades principales.",
+                    "Sustitución de la fibra óptica por enlaces dial up de 56 kbps."
+                ],
+                correct: 1,
+                sustento: "La penetración aumentó del 5% (2003) al 38% (2015) gracias a la infraestructura de fibra y reducción de costos."
+            },
+            {
+                q: "¿Cuál es el mensaje principal implícito sobre las soluciones para cerrar la brecha digital?",
+                options: [
+                    "Se debe esperar a que la tecnología 5G llegue de forma orgánica a todo el país.",
+                    "Es necesaria una combinación de inversión privada subsidiada, capacitación digital y fondos nacionales rurales.",
+                    "La solución radica exclusivamente en la donación de dispositivos por parte de organismos internacionales.",
+                    "Cerrar la brecha digital es imposible debido a la geografía diversa de Bolivia."
+                ],
+                correct: 1,
+                sustento: "El autor propone incentivar inversión privada, capacitación digital y crear un fondo nacional, bajo cooperación multisectorial."
+            },
+            // Pregunta 11 a 30 resumidas para el código por espacio, pero manteniendo lógica del PDF
+            {
+                q: "¿Qué principio general se desprende de las soluciones propuestas para cerrar la brecha digital?",
+                options: ["Inversión estatal pura", "Colaboración multisectorial (gobierno, academia, privado)", "Privatización total de la red", "Educación técnica exclusiva"],
+                correct: 1,
+                sustento: "Se sugiere una estrategia de colaboración entre gobierno, academia y sector privado para expandir la conectividad rural."
+            },
+            {
+                q: "¿Cuál es la idea principal implícita que el autor desea transmitir sobre la evolución del Internet?",
+                options: ["Bolivia es líder regional en 5G", "El progreso tecnológico es notable pero la desigualdad urbana-rural persiste", "La UMSA es el actor más importante hoy", "El dial-up sigue siendo la base del sistema"],
+                correct: 1,
+                sustento: "Aunque hay avances de 64 kbps a 5G, el 68% de hogares rurales sigue sin acceso fijo en 2023."
+            },
+            {
+                q: "¿Cuál es la propuesta central para reducir la brecha digital?",
+                options: ["Eliminar la fibra óptica", "Subsidios, capacitación digital y un fondo nacional", "Aumentar el costo de los servicios", "Centralizar el Internet en La Paz"],
+                correct: 1,
+                sustento: "El autor propone específicamente subsidios a la inversión privada, capacitación y un fondo nacional dirigido a zonas rurales."
+            },
+            {
+                q: "Según el texto, ¿qué es probable que ocurra en los próximos cinco años?",
+                options: ["Cobertura total de 5G", "Cierre de la brecha digital sin inversión", "Persistencia de la brecha digital si no se aplican las políticas propuestas", "Regreso a la tecnología dial up"],
+                correct: 2,
+                sustento: "Al 2024 solo el 20% tendrá 5G en áreas estratégicas, lo que implica que el desafío rural continuará sin políticas activas."
+            },
+            {
+                q: "¿Consecuencia más probable de la instalación de fibra óptica (2006-2015)?",
+                options: ["Aumento de precios", "Mejora de la penetración urbana al 38%", "Conexión total de la Amazonía", "Desuso de la tecnología móvil"],
+                correct: 1,
+                sustento: "La cobertura alcanzó el 60% urbano y la penetración subió al 38% en 2015."
+            },
+            {
+                q: "¿Qué se puede deducir de la estrategia de Entel con el 4G LTE?",
+                options: ["Fue un fracaso financiero", "Facilitó la futura implementación de la tecnología 5G", "Se enfocó solo en zonas rurales", "Era más lenta que el dial up"],
+                correct: 1,
+                sustento: "Se infiere que una red 4G robusta facilita el despliegue de 5G, pues la evolución depende de la infraestructura ya existente."
+            },
+            {
+                q: "¿Mensaje implícito principal respecto a los datos estadísticos?",
+                options: ["Las estadísticas son incorrectas", "El éxito tecnológico es absoluto", "Se necesitan políticas dirigidas a la inclusión universal por las desigualdades persistentes", "La brecha digital es un mito"],
+                correct: 2,
+                sustento: "Pese a avances urbanos, el 68% rural carece de acceso, evidenciando la necesidad de política dirigida a la inclusión."
+            },
+            {
+                q: "Tras la expansión de fibra y 4G/5G, ¿qué se concluye?",
+                options: ["La brecha digital ha desaparecido", "La brecha digital persiste significativamente", "El área rural está mejor conectada", "Las ciudades perdieron conectividad"],
+                correct: 1,
+                sustento: "En 2023 el 68% de hogares rurales carecían de acceso fijo, demostrando que la brecha persiste."
+            },
+            {
+                q: "¿Idea principal implícita sobre los resultados de la evolución tecnológica?",
+                options: ["El Internet solo sirve para juegos", "Los avances tecnológicos deben ir acompañados de políticas para cerrar la brecha", "La pandemia frenó el progreso", "El 5G es innecesario para Bolivia"],
+                correct: 1,
+                sustento: "El artículo describe avances pero concluye con la necesidad de colaboración multisectorial para cerrar la brecha persistente."
+            },
+            {
+                q: "¿Qué se deduce de la expansión 5G en Puerto Suárez?",
+                options: ["Es un experimento sin utilidad", "Favorecerá la telemedicina avanzada en zonas previamente aisladas", "Solo beneficiará a turistas", "Encarecerá los servicios de salud"],
+                correct: 1,
+                sustento: "Se deduce que 5G conectará hospitales para telemedicina avanzada y monitoreo en tiempo real."
+            },
+            {
+                q: "¿Principio sobre el papel de los actores en la conectividad?",
+                options: ["El Estado debe hacerlo todo", "La academia es el único motor", "La expansión requiere cooperación entre academia, gobierno y privados", "Los organismos internacionales no aportan nada"],
+                correct: 2,
+                sustento: "El texto enfatiza la necesidad de cooperación entre academia, gobierno y sector privado."
+            },
+            {
+                q: "Evaluación crítica de la meta del 20% de acceso a 5G para 2024:",
+                options: ["Es una meta demasiado ambiciosa", "Es un paso progresivo pero insuficiente para la cobertura total", "Es mejor que la tendencia global", "Es irrelevante para el desarrollo"],
+                correct: 1,
+                sustento: "Es un paso progresivo, no una cobertura total, dado que el 68% rural carece aún de acceso fijo."
+            },
+            {
+                q: "¿Qué sesgo podría afectar la interpretación del dato del 68% de hogares rurales sin acceso fijo?",
+                options: ["Sesgo de confirmación", "Equiparar ausencia de acceso fijo con ausencia total de conectividad (obviando lo móvil)", "Sesgo de género", "Sesgo de disponibilidad"],
+                correct: 1,
+                sustento: "El autor no discute que esos hogares podrían usar Internet móvil, lo cual es un sesgo de interpretación."
+            },
+            {
+                q: "¿Por qué es relevante la prueba de 5G en Puerto Suárez para las políticas públicas?",
+                options: ["Porque Puerto Suárez es la capital", "Porque justifica el uso de 5G para servicios críticos como salud y educación en zonas alejadas", "Porque fue financiada por el BID", "Porque permite ver películas en alta definición"],
+                correct: 1,
+                sustento: "Evidenciar servicios críticos justifica políticas de expansión tecnológica como herramienta contra la brecha."
+            },
+            {
+                q: "¿Es válida la afirmación de que el 5G eliminará por completo la brecha digital?",
+                options: ["Sí, es una tecnología infalible", "No, porque la meta del 20% es urbana y persisten retos estructurales", "Sí, según datos del INE", "No, porque el 4G es mejor"],
+                correct: 1,
+                sustento: "La meta está concentrada en zonas estratégicas y persisten brechas estructurales de financiamiento."
+            },
+            {
+                q: "¿Qué aspecto importante ha obviado el autor en su análisis?",
+                options: ["La geografía boliviana", "El sesgo de género y diferencias de acceso entre hombres y mujeres", "La tecnología 4G", "La pandemia de COVID-19"],
+                correct: 1,
+                sustento: "El autor nunca menciona diferencias de acceso o uso entre hombres y mujeres."
+            },
+            {
+                q: "¿Viabilidad de la meta del 20% de 5G para 2024?",
+                options: ["Imposible de cumplir", "Plausible porque se enfoca en zonas urbanas y estratégicas ya desarrolladas", "Demasiado baja para Bolivia", "Depende solo de la UMSA"],
+                correct: 1,
+                sustento: "La meta resulta plausible pese a la brecha rural porque se enfoca en áreas con infraestructura robusta."
+            },
+            {
+                q: "¿Qué perspectiva futura NO es considerada por el autor?",
+                options: ["La inversión privada", "La visión y necesidades de los pueblos indígenas", "La capacitación digital", "El fondo nacional rural"],
+                correct: 1,
+                sustento: "En ningún apartado se menciona la inclusión de la visión o necesidades de los pueblos indígenas."
+            },
+            {
+                q: "¿Qué combinación de medidas sería la más adecuada según el texto?",
+                options: ["Solo inversión pública", "Solo inversión privada", "Subsidios, capacitación y un fondo nacional para expansión rural", "Eliminar los cibercafés"],
+                correct: 2,
+                sustento: "El artículo propone esta combinación para responder a la brecha significativa que persiste."
+            },
+            {
+                q: "¿Cuál es la valoración más adecuada de la meta del 20% de 5G en el contexto boliviano?",
+                options: ["Es un fracaso comparado al 50% global", "Es un paso progresivo inicial mientras se mantienen los desafíos rurales", "Es la solución definitiva", "Es un retroceso tecnológico"],
+                correct: 1,
+                sustento: "La meta del 20% es un paso progresivo, no una cobertura total, dada la brecha rural existente."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 1800; // 30 minutos
+        let timerId;
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+            startTimer();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('q-count').innerText = `Pregunta ${currentQuestion + 1} de 30`;
+            document.getElementById('progress').style.width = `${((currentQuestion) / 30) * 100}%`;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn text-left p-4 rounded-xl font-medium bg-white';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+            
+            document.getElementById('feedback').classList.add('hidden');
+        }
+
+        function checkAnswer(selectedIndex) {
+            const q = questions[currentQuestion];
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (selectedIndex === q.correct) {
+                buttons[selectedIndex].classList.add('correct');
+                score++;
+                showFeedback(true, q.sustento);
+            } else {
+                buttons[selectedIndex].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                showFeedback(false, q.sustento);
+            }
+        }
+
+        function showFeedback(isCorrect, text) {
+            const feedback = document.getElementById('feedback');
+            const status = document.getElementById('feedback-status');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            feedback.classList.remove('hidden');
+            if (isCorrect) {
+                status.innerText = "¡Correcto!";
+                status.className = "font-bold text-lg mb-2 text-green-600";
+                feedback.className = "mt-8 p-6 rounded-xl border-l-4 bg-green-50 border-green-500";
+            } else {
+                status.innerText = "Incorrecto";
+                status.className = "font-bold text-lg mb-2 text-red-600";
+                feedback.className = "mt-8 p-6 rounded-xl border-l-4 bg-red-50 border-red-500";
+            }
+            feedbackText.innerText = `Sustento: ${text}`;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                document.getElementById('timer').innerText = 
+                    `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function showResults() {
+            clearInterval(timerId);
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            const percent = Math.round((score / 30) * 100);
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-percent').innerText = `${percent}%`;
+            
+            let badge = document.getElementById('performance-badge');
+            let msg = document.getElementById('result-message');
+            
+            if (percent >= 80) {
+                badge.innerText = "DESEMPEÑO: ALTO";
+                badge.className = "py-3 px-6 rounded-full inline-block font-bold text-white uppercase tracking-wider bg-green-500";
+                msg.innerText = "¡Excelente dominio del texto! Has comprendido profundamente los desafíos y hitos del Internet en Bolivia.";
+            } else if (percent >= 50) {
+                badge.innerText = "DESEMPEÑO: MEDIO";
+                badge.className = "py-3 px-6 rounded-full inline-block font-bold text-white uppercase tracking-wider bg-yellow-500";
+                msg.innerText = "Buen trabajo, aunque algunos detalles técnicos y estadísticos requieren una relectura para mayor precisión.";
+            } else {
+                badge.innerText = "DESEMPEÑO: BAJO";
+                badge.className = "py-3 px-6 rounded-full inline-block font-bold text-white uppercase tracking-wider bg-red-500";
+                msg.innerText = "Te recomendamos leer nuevamente el artículo enfocado en los hitos cronológicos y los desafíos estructurales.";
+            }
+        }
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            timeLeft = 1800;
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONOCIMIENTOS GENERALES - FILOSOFIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%);
+            color: #1a3a4a; /* Azul petróleo profundo */
+            min-height: 100vh;
+        }
+        h1, h2 { font-family: 'Montserrat', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .option-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e2e8f0;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: #4db6ac;
+            background-color: #f0fdfa;
+        }
+        .correct { background-color: #c6f6d5 !important; border-color: #48bb78 !important; }
+        .incorrect { background-color: #fed7d7 !important; border-color: #f56565 !important; }
+        .progress-bar { transition: width 0.5s ease-in-out; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header / Nav -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-8">
+        <a href="land_pag.html" class="bg-white px-6 py-2 rounded-full shadow-sm border border-teal-100 font-semibold text-teal-600 hover:bg-teal-50 transition-colors">
+            ← Volver
+        </a>
+        <div class="text-right">
+            <div id="timer" class="text-xl font-bold text-teal-700">30:00</div>
+            <div class="text-xs uppercase tracking-widest text-teal-500">Tiempo restante</div>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto">
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="glass-card p-8 text-center animate-fade-in">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4 text-teal-800">CONOCIMIENTOS GENERALES - FILOSOFIA</h1>
+            <p class="text-lg text-gray-600 mb-8">Simulador Académico de Educación Superior. 20 preguntas de alto nivel.</p>
+            <button onclick="startQuiz()" class="bg-teal-600 text-white px-10 py-4 rounded-xl font-bold text-xl hover:bg-teal-700 transform hover:scale-105 transition-all shadow-lg">
+                Iniciar Simulacro
+            </button>
+        </div>
+
+        <!-- Pantalla de Preguntas -->
+        <div id="quiz-screen" class="hidden space-y-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-semibold text-teal-600" id="question-counter">Pregunta 1 de 20</span>
+                <span class="text-sm font-semibold text-teal-600" id="score-counter">Puntaje: 0</span>
+            </div>
+            
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                <div id="progress" class="bg-teal-500 h-2.5 rounded-full progress-bar" style="width: 5%"></div>
+            </div>
+
+            <div class="glass-card p-6 md:p-10">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 leading-tight">
+                    Cargando pregunta...
+                </h2>
+                
+                <div id="options-container" class="grid grid-cols-1 gap-4">
+                    <!-- Opciones se cargan aquí -->
+                </div>
+
+                <!-- Retroalimentación -->
+                <div id="feedback" class="hidden mt-8 p-6 rounded-xl border-l-4">
+                    <p id="feedback-status" class="font-bold text-lg mb-2"></p>
+                    <p id="feedback-text" class="text-sm md:text-base italic leading-relaxed text-gray-700"></p>
+                    <button id="next-btn" onclick="nextQuestion()" class="mt-6 w-full md:w-auto bg-teal-800 text-white px-8 py-3 rounded-lg font-bold hover:bg-teal-900 transition-colors">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados -->
+        <div id="result-screen" class="hidden glass-card p-10 text-center">
+            <h2 class="text-3xl font-bold mb-4 text-teal-800">Resultado Final</h2>
+            <div class="flex flex-col items-center justify-center mb-8">
+                <div class="text-6xl font-bold text-teal-600 mb-2" id="final-score">0/20</div>
+                <div class="text-2xl font-semibold" id="performance-msg">Bajo</div>
+                <div class="text-gray-500 mt-2" id="final-percentage">0% de logro</div>
+            </div>
+            
+            <p id="performance-description" class="text-lg text-gray-600 mb-8 max-w-md mx-auto"></p>
+            
+            <button onclick="location.reload()" class="bg-teal-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition-all">
+                Reiniciar simulador
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-xs text-gray-400 font-medium">
+            <p>@victor 2026-SIMULADOR ACADÉMICO DE CONOCIMIENTOS GENERALES- FILOSOFIA</p>
+            <p class="mt-1 italic">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </main>
+
+    <script>
+        const questions = [
+            {
+                q: "La Filosofía se distingue de otros campos del saber por su forma particular de abordar los problemas fundamentales de la existencia, el conocimiento y la realidad. ¿Cuál de las siguientes características define mejor la actividad filosófica?",
+                options: [
+                    "La descripción empírica de fenómenos naturales.",
+                    "Su carácter reflexivo, crítico y racional frente a los fundamentos del saber.",
+                    "La aplicación de métodos exclusivamente experimentales.",
+                    "La aceptación de supuestos y criterios evidentes sin cuestionamiento."
+                ],
+                correct: 1,
+                sustento: "La actividad filosófica se define por su carácter reflexivo, crítico y racional. A diferencia de las ciencias empíricas, la filosofía interroga los fundamentos mismos del saber, cuestionando supuestos que suelen darse por evidentes."
+            },
+            {
+                q: "La Filosofía reflexiona de manera sistemática sobre el conocimiento humano, su origen, validez y límites. ¿Cómo se denomina la rama que se ocupa de este campo?",
+                options: ["Ontología", "Estética", "Epistemología", "Ética"],
+                correct: 2,
+                sustento: "La epistemología, también denominada teoría del conocimiento, es la rama de la filosofía que reflexiona sobre el origen, naturaleza, validez y límites del conocimiento humano."
+            },
+            {
+                q: "¿A qué rama de la Filosofía corresponde principalmente la indagación por el 'ser' y la naturaleza fundamental de la realidad?",
+                options: ["Lógica", "Ontología", "Antropología", "Política"],
+                correct: 1,
+                sustento: "La ontología es la rama que estudia el ser en cuanto ser, es decir, aquello que existe y sus modos fundamentales de existencia, indagando las estructuras más generales de la realidad."
+            },
+            {
+                q: "¿Cómo se denomina el método filosófico asociado a Sócrates, basado en el diálogo y el cuestionamiento constante?",
+                options: ["Duda metódica", "Dialéctica materialista", "Mayéutica", "Fenomenología"],
+                correct: 2,
+                sustento: "La mayéutica es el método desarrollado por Sócrates. A través de preguntas, buscaba que el interlocutor reconociera contradicciones y llegara por sí mismo a una comprensión clara de la verdad."
+            },
+            {
+                q: "Para Platón, la realidad verdadera se encuentra en un ámbito eterno e inmutable. ¿Dónde sitúa Platón la auténtica realidad?",
+                options: ["En el mundo sensible", "En la experiencia empírica", "En el mundo inteligible (Ideas)", "En la percepción sensorial"],
+                correct: 2,
+                sustento: "Para Platón, la realidad se divide en el mundo sensible (cambiante) y el mundo inteligible, compuesto por las Ideas o Formas, que son eternas, inmutables y universales."
+            },
+            {
+                q: "¿Cuál es el principal objeto de reflexión de la ética filosófica?",
+                options: ["La belleza artística", "La conducta humana, los valores y principios que orientan la acción", "La estructura lógica del lenguaje", "El origen del universo físico"],
+                correct: 1,
+                sustento: "La ética filosófica se ocupa de reflexionar racionalmente sobre la conducta humana, fundamentando criterios para distinguir lo justo de lo injusto y lo bueno de lo malo."
+            },
+            {
+                q: "Según Aristóteles, ¿cuál es el fin supremo (telos) que da sentido pleno a la existencia humana?",
+                options: ["La riqueza material", "El placer sensorial (hedoné)", "La eudaimonía (felicidad plena mediante la virtud)", "El poder político"],
+                correct: 2,
+                sustento: "Según Aristóteles, el fin último es la eudaimonía, entendida como una vida plena lograda a través del ejercicio constante de las virtudes éticas e intelectuales guiadas por la razón."
+            },
+            {
+                q: "¿Cuál es la fuente principal del conocimiento que René Descartes privilegia dentro del racionalismo?",
+                options: ["La tradición religiosa", "Los sentidos", "La razón", "La intuición mística"],
+                correct: 2,
+                sustento: "Descartes es el principal representante del racionalismo, corriente que afirma que la razón es la fuente principal del conocimiento verdadero, ejemplificado en su 'pienso, luego existo'."
+            },
+            {
+                q: "¿Con qué corriente se asocia la idea de que solo es verdadero aquello verificable mediante observación y experiencia empírica?",
+                options: ["Idealismo", "Positivismo", "Existencialismo", "Racionalismo"],
+                correct: 1,
+                sustento: "El positivismo sostiene que solo es válido el conocimiento verificado empíricamente, rechazando explicaciones metafísicas por considerarlas carentes de sentido científico."
+            },
+            {
+                q: "¿Sobre qué aspecto central recae principalmente la duda del escepticismo?",
+                options: ["Sobre la existencia de Dios", "Sobre la posibilidad de alcanzar un conocimiento cierto y definitivo", "Sobre la validez de las leyes matemáticas", "Sobre la importancia del arte"],
+                correct: 1,
+                sustento: "El escepticismo plantea una duda radical respecto a la posibilidad de alcanzar un conocimiento cierto, cuestionando los criterios utilizados para afirmar la verdad."
+            },
+            {
+                q: "Según Immanuel Kant, ¿cómo se origina el conocimiento humano?",
+                options: ["Exclusivamente por la razón pura", "Solo mediante la percepción sensorial", "Por la síntesis de datos de la experiencia organizados por estructuras a priori de la razón", "A través de la revelación divina"],
+                correct: 2,
+                sustento: "Kant propuso una síntesis entre racionalismo y empirismo: el conocimiento se produce cuando los datos de la experiencia son organizados por estructuras a priori de la razón."
+            },
+            {
+                q: "¿A qué campo filosófico pertenece la pregunta por 'qué es lo bueno'?",
+                options: ["Estética", "Ética", "Lógica", "Metafísica"],
+                correct: 1,
+                sustento: "La pregunta por el bien constituye un problema central de la ética, que busca una fundamentación racional de la acción moral en la vida individual y social."
+            },
+            {
+                q: "¿Qué aspecto fundamental de la existencia humana enfatiza prioritariamente el existencialismo?",
+                options: ["La predeterminación biológica", "La libertad, responsabilidad y capacidad de elección", "La obediencia a la autoridad", "La búsqueda de leyes universales"],
+                correct: 1,
+                sustento: "El existencialismo destaca la libertad y responsabilidad del ser humano, sosteniendo que no posee una esencia predeterminada, sino que se construye a través de sus decisiones."
+            },
+            {
+                q: "¿Cuál es el objeto principal de estudio de la estética filosófica?",
+                options: ["La conducta moral", "La belleza, el arte y la experiencia estética", "El origen de las especies", "La estructura del Estado"],
+                correct: 1,
+                sustento: "La estética reflexiona sobre la belleza y el arte, interrogándose por los criterios de lo bello y el significado simbólico y cultural de la experiencia artística."
+            },
+            {
+                q: "¿Qué rama de la filosofía expresa la idea del 'ser humano como ser racional'?",
+                options: ["Cosmología", "Lógica", "Antropología filosófica", "Teología"],
+                correct: 2,
+                sustento: "La antropología filosófica reflexiona sobre la naturaleza humana. Definirlo como ser racional destaca su capacidad de pensar, deliberar y actuar de manera consciente."
+            },
+            {
+                q: "¿Cuándo un problema adquiere propiamente un carácter filosófico?",
+                options: ["Cuando requiere una solución técnica inmediata", "Cuando cuestiona supuestos fundamentales y no admite soluciones definitivas únicas", "Cuando puede resolverse mediante un experimento simple", "Cuando se refiere a un dato histórico específico"],
+                correct: 1,
+                sustento: "Un problema filosófico cuestiona supuestos fundamentales de nuestras creencias y valores, abriendo espacios de reflexión crítica en lugar de soluciones técnicas cerradas."
+            },
+            {
+                q: "¿En qué rasgo fundamental se distingue la explicación filosófica de la explicación mítica?",
+                options: ["En el uso de la fe", "En que la filosofía se apoya en la razón, la argumentación y la justificación racional (logos)", "En la brevedad de sus relatos", "En que el mito es más moderno"],
+                correct: 1,
+                sustento: "El paso del mito al logos supuso privilegiar la reflexión crítica y la justificación racional frente a las narraciones simbólicas y tradicionales de los mitos."
+            },
+            {
+                q: "Según el relativismo filosófico, ¿de qué dependen la verdad o los valores?",
+                options: ["De leyes universales inmutables", "Del contexto cultural, histórico o individual", "De la voluntad de un solo individuo", "De la evidencia científica absoluta"],
+                correct: 1,
+                sustento: "El relativismo sostiene que la verdad y los valores dependen del contexto cultural o histórico, cuestionando la existencia de criterios universales absolutos."
+            },
+            {
+                q: "¿Qué rasgo caracteriza de manera central a la filosofía de la modernidad?",
+                options: ["El apego absoluto a la escolástica medieval", "La actitud crítica frente a la tradición y el uso autónomo de la razón", "El rechazo a la ciencia experimental", "La negación de la subjetividad"],
+                correct: 1,
+                sustento: "La modernidad se caracteriza por la autonomía de la razón y la actitud crítica ante la autoridad tradicional, sentando las bases del pensamiento científico moderno."
+            },
+            {
+                q: "¿Qué cuestión fundamental busca esclarecer el problema del libre albedrío?",
+                options: ["La velocidad de la luz", "La capacidad del ser humano para elegir y decidir sus propias acciones", "La estructura de los átomos", "La historia de los imperios"],
+                correct: 1,
+                sustento: "El libre albedrío es un problema clásico que indaga si el ser humano tiene realmente la capacidad de elegir sus acciones o si estas están determinadas por causas ajenas."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 30 * 60; // 30 minutos
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                document.getElementById('timer').textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-text').textContent = q.q;
+            document.getElementById('question-counter').textContent = `Pregunta ${currentQuestion + 1} de 20`;
+            document.getElementById('score-counter').textContent = `Puntaje: ${score}`;
+            document.getElementById('progress').style.width = `${((currentQuestion + 1) / 20) * 100}%`;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left p-4 rounded-xl font-medium text-gray-700 bg-white hover:shadow-md';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(index);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('feedback').classList.add('hidden');
+        }
+
+        function checkAnswer(selected) {
+            const q = questions[currentQuestion];
+            const buttons = document.querySelectorAll('.option-btn');
+            const feedback = document.getElementById('feedback');
+            const status = document.getElementById('feedback-status');
+            const text = document.getElementById('feedback-text');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selected === q.correct) {
+                buttons[selected].classList.add('correct');
+                status.textContent = "¡Correcto!";
+                status.className = "font-bold text-lg mb-2 text-green-600";
+                feedback.className = "mt-8 p-6 rounded-xl border-l-4 bg-green-50 border-green-500";
+                score++;
+            } else {
+                buttons[selected].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                status.textContent = "Incorrecto";
+                status.className = "font-bold text-lg mb-2 text-red-600";
+                feedback.className = "mt-8 p-6 rounded-xl border-l-4 bg-red-50 border-red-500";
+            }
+
+            text.textContent = q.sustento;
+            feedback.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            clearInterval(timer);
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            const finalScore = document.getElementById('final-score');
+            const percentage = (score / 20) * 100;
+            finalScore.textContent = `${score}/20`;
+            document.getElementById('final-percentage').textContent = `${percentage}% de logro`;
+
+            const msg = document.getElementById('performance-msg');
+            const desc = document.getElementById('performance-description');
+
+            if (percentage >= 85) {
+                msg.textContent = "Desempeño: ALTO";
+                msg.className = "text-2xl font-bold text-green-600";
+                desc.textContent = "¡Excelente! Tienes un dominio profundo de los conceptos fundamentales de la filosofía.";
+            } else if (percentage >= 60) {
+                msg.textContent = "Desempeño: MEDIO";
+                msg.className = "text-2xl font-bold text-yellow-600";
+                desc.textContent = "Buen trabajo. Posees conocimientos sólidos, aunque hay algunos conceptos que podrías reforzar.";
+            } else {
+                msg.textContent = "Desempeño: BAJO";
+                msg.className = "text-2xl font-bold text-red-600";
+                desc.textContent = "Sigue estudiando. La filosofía requiere una lectura crítica constante. ¡No te rindas!";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONOCIMIENTOS GENERALES - BIOLOGIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%);
+            color: #1a202c; /* Azul petróleo muy oscuro para evitar fatiga */
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        .option-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            background-color: #f0fdfa;
+            border-color: #99f6e4;
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .progress-bar {
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <a href="land_pag.html" class="px-6 py-2 bg-white text-teal-700 font-semibold rounded-full shadow-sm hover:shadow-md transition-all border border-teal-100">
+                ← Volver
+            </a>
+            <h1 class="text-2xl md:text-3xl font-bold text-center text-teal-900 tracking-tight">
+                CONOCIMIENTOS GENERALES - BIOLOGIA
+            </h1>
+            <div id="timer" class="text-xl font-mono bg-teal-50 px-4 py-2 rounded-lg border border-teal-200 text-teal-800">
+                30:00
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="mb-8">
+            <div class="flex justify-between text-sm font-medium mb-2 text-teal-700">
+                <span id="progress-text">Pregunta 1 de 20</span>
+                <span id="score-text">Aciertos: 0</span>
+            </div>
+            <div class="w-full bg-white rounded-full h-3 shadow-inner">
+                <div id="progress-fill" class="bg-teal-400 h-3 rounded-full progress-bar" style="width: 5%"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="glass-card rounded-3xl p-6 md:p-10 mb-8">
+            <div id="question-area">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 leading-tight">
+                    Cargando pregunta...
+                </h2>
+                <div id="options-container" class="grid grid-cols-1 gap-4">
+                    <!-- Opciones se cargan aquí -->
+                </div>
+            </div>
+
+            <!-- Feedback Area -->
+            <div id="feedback-area" class="hidden mt-8 p-6 rounded-2xl bg-teal-50 border border-teal-100">
+                <h3 id="feedback-status" class="font-bold text-lg mb-2"></h3>
+                <p id="feedback-text" class="text-sm leading-relaxed text-gray-700"></p>
+                <button id="next-btn" class="mt-6 w-full md:w-auto px-8 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors shadow-lg">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden glass-card rounded-3xl p-10 text-center">
+            <h2 class="text-4xl font-bold text-teal-900 mb-4">¡Simulacro Finalizado!</h2>
+            <div class="text-6xl font-black text-teal-600 mb-6" id="final-score">0/20</div>
+            <div class="text-2xl font-semibold mb-2" id="performance-rank">Desempeño: -</div>
+            <p class="text-gray-600 mb-8" id="achievement-text">Logro: 0%</p>
+            
+            <button onclick="location.reload()" class="px-10 py-4 bg-teal-600 text-white font-bold rounded-2xl hover:bg-teal-700 transition-all shadow-xl transform hover:scale-105">
+                Reiniciar simulador
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-12 text-teal-800/60 text-sm italic">
+            @victor 2026 - SIMULADOR ACADÉMICO DE CONOCIMIENTOS GENERALES - BIOLOGIA <br>
+            "Con esfuerzo lograrás el éxito, no desmayes"
+        </footer>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                q: "¿Cuál de las siguientes afirmaciones fundamenta de manera más precisa que la célula constituye la unidad básica de organización de los organismos?",
+                options: [
+                    "Es la estructura más pequeña capaz de realizar todas las funciones vitales de forma autónoma e integrada.",
+                    "Es una unidad que solo existe en organismos pluricelulares complejos.",
+                    "Es un componente inerte que solo sirve de soporte estructural al cuerpo.",
+                    "Es una unidad que no requiere energía para su funcionamiento."
+                ],
+                correct: 0,
+                sustento: "La célula es considerada la unidad básica de organización de los seres vivos porque constituye la estructura más pequeña que posee la capacidad de llevar a cabo, de forma integrada y autónoma, todas las funciones vitales necesarias para la vida (metabolismo, energía, respuesta, crecimiento y reproducción)."
+            },
+            {
+                q: "¿Cuál es la diferencia fundamental entre una célula eucariota y una procariota?",
+                options: [
+                    "La presencia o ausencia de pared celular únicamente.",
+                    "La organización del material genético y la presencia de un núcleo delimitado por membrana.",
+                    "El tamaño de los ribosomas como única diferencia estructural.",
+                    "Que las procariotas no tienen ADN de ningún tipo."
+                ],
+                correct: 1,
+                sustento: "La diferencia fundamental radica en la organización del material genético. Las eucariotas poseen un núcleo verdadero delimitado por una membrana nuclear, mientras que las procariotas carecen de núcleo definido y su ADN está libre en el nucleoide."
+            },
+            {
+                q: "¿Cuál es la función principal de la mitocondria dentro de la célula?",
+                options: [
+                    "Almacenar el material genético de la célula.",
+                    "Sintetizar proteínas para la membrana celular.",
+                    "Realizar la respiración celular para producir energía en forma de ATP.",
+                    "Digerir los desechos celulares mediante enzimas."
+                ],
+                correct: 2,
+                sustento: "La mitocondria es la 'central energética' de la célula, responsable de la respiración celular mediante la cual se transforma nutrientes en ATP (energía utilizable)."
+            },
+            {
+                q: "¿Por qué el ADN cumple una función esencial en los organismos?",
+                options: [
+                    "Porque es la principal fuente de energía inmediata para el movimiento.",
+                    "Porque contiene la información genética para el desarrollo, funcionamiento y transmisión hereditaria.",
+                    "Porque actúa como una barrera física contra virus y bacterias.",
+                    "Porque regula únicamente la temperatura corporal de los seres vivos."
+                ],
+                correct: 1,
+                sustento: "El ADN contiene las instrucciones codificadas para la síntesis de proteínas y garantiza la transmisión de la información hereditaria, asegurando la continuidad biológica."
+            },
+            {
+                q: "¿Cómo se definen los genes desde el punto de vista biológico?",
+                options: [
+                    "Como cualquier molécula de proteína que se encuentra en el núcleo.",
+                    "Como segmentos específicos de ADN que contienen información para síntesis de proteínas o regulación biológica.",
+                    "Como el conjunto total de células que forman un tejido.",
+                    "Como impulsos eléctricos que viajan por el sistema nervioso."
+                ],
+                correct: 1,
+                sustento: "Los genes son la unidad básica de la herencia; segmentos de ADN que permiten que las células produzcan moléculas esenciales y transmitan características físicas y fisiológicas."
+            },
+            {
+                q: "¿Cuál es la principal diferencia entre la meiosis y la mitosis?",
+                options: [
+                    "La mitosis produce gametos y la meiosis repara tejidos.",
+                    "La meiosis reduce el número de cromosomas a la mitad para formar gametos; la mitosis lo mantiene constante.",
+                    "Ambas producen exactamente el mismo número de células hijas genéticamente idénticas.",
+                    "La mitosis solo ocurre en plantas y la meiosis solo en animales."
+                ],
+                correct: 1,
+                sustento: "La meiosis forma gametos con la mitad de cromosomas favoreciendo la variabilidad genética, mientras la mitosis mantiene el número cromosómico para crecimiento y reparación."
+            },
+            {
+                q: "¿Cuál es una característica fundamental de la reproducción sexual?",
+                options: [
+                    "Produce descendencia genéticamente idéntica al progenitor único.",
+                    "La unión de gametos genera variabilidad genética en la descendencia.",
+                    "No requiere la participación de células especializadas.",
+                    "Ocurre exclusivamente mediante la división binaria de una célula madre."
+                ],
+                correct: 1,
+                sustento: "La reproducción sexual se caracteriza por la unión de gametos, generando variabilidad genética que es una ventaja evolutiva para adaptarse al ambiente."
+            },
+            {
+                q: "De acuerdo con Charles Darwin, ¿cuál es el mecanismo principal que explica la diversidad biológica?",
+                options: [
+                    "La generación espontánea de nuevas especies.",
+                    "La selección natural basada en variaciones favorables para la supervivencia.",
+                    "El uso y desuso de los órganos durante la vida del individuo.",
+                    "Las mutaciones provocadas por la radiación solar únicamente."
+                ],
+                correct: 1,
+                sustento: "La selección natural explica cómo los organismos con rasgos favorables sobreviven y se reproducen, transmitiendo esas características de forma gradual."
+            },
+            {
+                q: "¿Qué se entiende por comunidad biológica en el estudio de la ecología?",
+                options: [
+                    "El conjunto de individuos de una sola especie en un área.",
+                    "El conjunto de todas las poblaciones de diferentes especies que habitan un mismo espacio.",
+                    "La interacción entre los seres vivos y los factores abióticos del suelo.",
+                    "El flujo de energía desde el sol hacia las plantas únicamente."
+                ],
+                correct: 1,
+                sustento: "La comunidad biológica se sitúa por encima de la población e incluye exclusivamente a los seres vivos (diversas especies) y sus interacciones en un espacio dado."
+            },
+            {
+                q: "¿Cuáles de los siguientes elementos corresponden a los factores abióticos de un ecosistema?",
+                options: [
+                    "Productores, consumidores y descomponedores.",
+                    "Luz solar, agua, temperatura, suelo y nutrientes minerales.",
+                    "Bosques, praderas y arrecifes de coral.",
+                    "Bacterias, hongos y protozoarios del suelo."
+                ],
+                correct: 1,
+                sustento: "Los factores abióticos son los componentes no vivos (condiciones físicas y químicas) que determinan los límites dentro de los cuales las especies pueden habitar."
+            },
+            {
+                q: "¿Cuál es la función principal de los productores dentro de un ecosistema?",
+                options: [
+                    "Descomponer la materia orgánica muerta para reciclar nutrientes.",
+                    "Fabricar su propio alimento (autótrofos) y constituir la base del flujo de energía.",
+                    "Consumir a otros organismos para controlar el crecimiento poblacional.",
+                    "Regular la temperatura global mediante la transpiración únicamente."
+                ],
+                correct: 1,
+                sustento: "Los productores (plantas, algas) transforman energía luminosa en energía química, sosteniendo las cadenas alimentarias y permitiendo la existencia de otros niveles tróficos."
+            },
+            {
+                q: "¿Cuál es la función principal del sistema respiratorio humano?",
+                options: [
+                    "Bombear sangre a todos los tejidos del cuerpo.",
+                    "Intercambio de gases: incorporar oxígeno y eliminar dióxido de carbono.",
+                    "Digerir los alimentos para obtener nutrientes esenciales.",
+                    "Filtrar las toxinas de la sangre mediante la orina."
+                ],
+                correct: 1,
+                sustento: "El sistema respiratorio permite la entrada de oxígeno necesario para la respiración celular y la eliminación del CO2, desecho del metabolismo."
+            },
+            {
+                q: "¿Por qué se considera que la sangre cumple una función esencial en el cuerpo?",
+                options: [
+                    "Porque es el único tejido que no contiene células vivas.",
+                    "Porque transporta oxígeno, nutrientes, hormonas y recoge desechos metabólicos.",
+                    "Porque genera los impulsos nerviosos necesarios para el pensamiento.",
+                    "Porque proporciona soporte rígido al sistema muscular."
+                ],
+                correct: 1,
+                sustento: "La sangre distribuye sustancias vitales y recoge desechos para mantener la homeostasis, el equilibrio interno indispensable para la vida."
+            },
+            {
+                q: "¿A qué reino pertenecen las bacterias, considerando su organización celular?",
+                options: [
+                    "Reino Fungi",
+                    "Reino Monera",
+                    "Reino Protista",
+                    "Reino Animalia"
+                ],
+                correct: 1,
+                sustento: "Las bacterias pertenecen al reino Monera, caracterizado por organismos procariotas (sin núcleo verdadero ni orgánulos membranosos)."
+            },
+            {
+                q: "¿Qué concepto biológico describe el mecanismo de regulación permanente del medio interno del organismo?",
+                options: [
+                    "Metabolismo",
+                    "Homeostasis",
+                    "Anabolismo",
+                    "Fotosíntesis"
+                ],
+                correct: 1,
+                sustento: "La homeostasis es la regulación constante del medio interno (temperatura, pH, etc.) mediante ajustes dinámicos para que las células funcionen adecuadamente."
+            },
+            {
+                q: "¿Qué describe de manera más adecuada el proceso de fecundación?",
+                options: [
+                    "La división de una célula madre en dos células hijas idénticas.",
+                    "La unión de gametos masculino y femenino para formar un cigoto.",
+                    "La transformación de una larva en un individuo adulto.",
+                    "La muerte programada de las células envejecidas."
+                ],
+                correct: 1,
+                sustento: "La fecundación es la fusión de gametos que restablece el número cromosómico y combina el material hereditario para iniciar el desarrollo de un nuevo ser."
+            },
+            {
+                q: "¿A qué se refiere principalmente la biodiversidad?",
+                options: [
+                    "Solo al número total de animales en un zoológico.",
+                    "A la variedad de seres vivos, incluyendo diversidad genética, de especies y ecosistemas.",
+                    "A la cantidad de agua disponible en un ecosistema terrestre.",
+                    "A la velocidad con la que las especies se extinguen naturalmente."
+                ],
+                correct: 1,
+                sustento: "La biodiversidad abarca la riqueza de formas de vida, sus diferencias y relaciones, siendo fundamental para el equilibrio ecológico y la resiliencia ambiental."
+            },
+            {
+                q: "¿Por qué las mutaciones cumplen un papel importante en los procesos biológicos?",
+                options: [
+                    "Porque siempre causan enfermedades mortales que detienen la evolución.",
+                    "Porque generan variabilidad genética, que es la base sobre la cual actúa la selección natural.",
+                    "Porque impiden que el ADN se replique durante la división celular.",
+                    "Porque permiten que los organismos vivan sin necesidad de alimentarse."
+                ],
+                correct: 1,
+                sustento: "Las mutaciones generan nuevas características heredables; sin ellas, las especies no podrían evolucionar ni responder a condiciones cambiantes del entorno."
+            },
+            {
+                q: "¿Qué representa una cadena alimentaria dentro de un ecosistema?",
+                options: [
+                    "Una lista de todas las especies que habitan en un bosque sin relación alguna.",
+                    "El flujo de energía que se establece entre organismos a través de relaciones de alimentación.",
+                    "El ciclo del agua desde los océanos hacia la atmósfera.",
+                    "La competencia por el territorio entre animales de la misma especie."
+                ],
+                correct: 1,
+                sustento: "Representa cómo la energía fluye desde productores hacia consumidores y descomponedores en una sola dirección, manteniendo el equilibrio del ecosistema."
+            },
+            {
+                q: "¿A qué se refiere el término especie desde el punto de vista biológico?",
+                options: [
+                    "A organismos que se parecen físicamente aunque no puedan reproducirse.",
+                    "A organismos capaces de reproducirse entre sí y producir descendencia fértil.",
+                    "A todos los animales que viven en un mismo continente.",
+                    "A cualquier grupo de seres vivos que compartan el mismo tipo de alimento."
+                ],
+                correct: 1,
+                sustento: "El concepto biológico de especie se basa en el criterio reproductivo: la capacidad de intercambiar material genético y asegurar continuidad con descendencia fértil."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60; // 30 minutos
+        let timerId;
+        let answered = false;
+
+        function initQuiz() {
+            showQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    showResults();
+                }
+                if (timeLeft < 300) { // Rojo si faltan menos de 5 min
+                    document.getElementById('timer').classList.add('text-red-600', 'bg-red-50', 'border-red-200');
+                }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            answered = false;
+            const q = quizData[currentQuestion];
+            document.getElementById('question-text').textContent = `${currentQuestion + 1}. ${q.q}`;
+            document.getElementById('progress-text').textContent = `Pregunta ${currentQuestion + 1} de ${quizData.length}`;
+            document.getElementById('progress-fill').style.width = `${((currentQuestion + 1) / quizData.length) * 100}%`;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            document.getElementById('feedback-area').classList.add('hidden');
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-card p-5 rounded-2xl bg-white border-2 border-gray-100 font-medium text-lg';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx, element) {
+            if (answered) return;
+            answered = true;
+            
+            const q = quizData[currentQuestion];
+            const options = document.querySelectorAll('.option-card');
+            
+            if (idx === q.correct) {
+                element.classList.add('correct');
+                score++;
+                document.getElementById('score-text').textContent = `Aciertos: ${score}`;
+                document.getElementById('feedback-status').textContent = "¡Correcto!";
+                document.getElementById('feedback-status').className = "font-bold text-lg mb-2 text-emerald-700";
+            } else {
+                element.classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                document.getElementById('feedback-status').textContent = "Incorrecto";
+                document.getElementById('feedback-status').className = "font-bold text-lg mb-2 text-red-700";
+            }
+
+            document.getElementById('feedback-text').innerHTML = `<strong>Sustento:</strong> ${q.sustento}`;
+            document.getElementById('feedback-area').classList.remove('hidden');
+        }
+
+        document.getElementById('next-btn').onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            clearInterval(timerId);
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            const percentage = (score / quizData.length) * 100;
+            document.getElementById('final-score').textContent = `${score}/${quizData.length}`;
+            document.getElementById('achievement-text').textContent = `Logro: ${percentage}%`;
+
+            let rank = "";
+            let color = "";
+            if (percentage >= 85) {
+                rank = "ALTO - Excelente dominio";
+                color = "text-emerald-600";
+            } else if (percentage >= 60) {
+                rank = "MEDIO - Buen conocimiento";
+                color = "text-yellow-600";
+            } else {
+                rank = "BAJO - Requiere más estudio";
+                color = "text-red-600";
+            }
+            
+            document.getElementById('performance-rank').textContent = `Desempeño: ${rank}`;
+            document.getElementById('performance-rank').className = `text-2xl font-semibold mb-2 ${color}`;
+        }
+
+        // Iniciar
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPONENTE: HABILIDADES SOCIOEMOCIONALES</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f4 0%, #ffffff 100%);
+            color: #2d3748; /* Azul petróleo profundo / Gris oscuro */
+            min-height: 100vh;
+        }
+        h1, h2, h3 {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background-color: #f0fff4;
+            border-color: #81e6d9;
+        }
+        .correct {
+            background-color: #c6f6d5 !important;
+            border-color: #48bb78 !important;
+            color: #22543d !important;
+        }
+        .incorrect {
+            background-color: #fed7d7 !important;
+            border-color: #f56565 !important;
+            color: #742a2a !important;
+        }
+        .progress-bar-fill {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #timer {
+            font-variant-numeric: tabular-nums;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header Navigation -->
+    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
+        <a href="land_pag.html" class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md transition font-semibold text-cyan-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver
+        </a>
+        <div id="timer-container" class="bg-white px-6 py-2 rounded-full shadow-sm flex items-center gap-3 border border-cyan-100">
+            <span class="text-gray-500 font-medium uppercase text-xs tracking-widest">Tiempo:</span>
+            <span id="timer" class="text-xl font-bold text-cyan-600">30:00</span>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto">
+        <!-- Progress Section -->
+        <div class="mb-8">
+            <div class="flex justify-between items-end mb-2">
+                <h1 class="text-xl md:text-2xl font-bold text-cyan-900">COMPONENTE: HABILIDADES SOCIOEMOCIONALES</h1>
+                <span id="q-counter" class="text-sm font-semibold text-cyan-600">Pregunta 1 de 10</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="progress-fill" class="progress-bar-fill bg-cyan-400 h-3 rounded-full" style="width: 10%"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-card" class="glass-card p-6 md:p-10 mb-8">
+            <div id="question-container">
+                <h2 id="question-text" class="text-lg md:text-xl font-bold mb-8 leading-tight">
+                    Cargando pregunta...
+                </h2>
+                <div id="options-grid" class="grid gap-4">
+                    <!-- Options will be injected here -->
+                </div>
+            </div>
+
+            <!-- Feedback area -->
+            <div id="feedback" class="hidden mt-8 p-6 rounded-xl border-l-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <h3 id="feedback-title" class="font-bold text-lg mb-2"></h3>
+                <p id="feedback-text" class="text-sm leading-relaxed italic"></p>
+                <button id="next-btn" class="mt-6 bg-cyan-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-cyan-700 transition shadow-lg w-full md:w-auto">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen (Hidden by default) -->
+        <div id="result-screen" class="hidden glass-card p-10 text-center">
+            <h2 class="text-3xl font-bold mb-4 text-cyan-900">¡Simulacro Completado!</h2>
+            <div class="flex justify-center gap-8 my-8">
+                <div>
+                    <p class="text-gray-500 text-sm uppercase tracking-widest">Puntaje</p>
+                    <p id="final-score" class="text-5xl font-black text-cyan-600">0/10</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-sm uppercase tracking-widest">Logro</p>
+                    <p id="final-percentage" class="text-5xl font-black text-emerald-500">0%</p>
+                </div>
+            </div>
+            <div id="performance-badge" class="inline-block px-8 py-2 rounded-full font-bold text-lg mb-6"></div>
+            <p id="performance-msg" class="text-gray-600 mb-8 max-w-md mx-auto"></p>
+            <button onclick="location.reload()" class="bg-cyan-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-cyan-700 transition shadow-xl">
+                Reiniciar simulador
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-400 text-xs mt-12 pb-8">
+            <p class="mb-2 uppercase tracking-widest">@victor 2026 - SIMULADOR ACADÉMICO DE HABILIDADES SOCIOEMOCIONALES</p>
+            <p class="italic font-medium text-cyan-500">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </main>
+
+    <script>
+        const questions = [
+            {
+                question: "La persona postulante se encuentra a cargo del último curso de secundaria. Durante una sesión de revisión para los exámenes de ingreso universitario, un estudiante que generalmente tiene buen desempeño comienza a criticar abiertamente la metodología de enseñanza, afirmando que es 'anticuada e inútil'. Otros estudiantes empiezan a mostrar signos de acuerdo, generando un ambiente de tensión colectiva. El estudiante agrega: 'Con esta forma de enseñar, ninguno de nosotros va a pasar el examen'. Ante esta situación, ¿cuál sería la respuesta más apropiada para manejar la tensión?",
+                options: [
+                    "Validar la preocupación del estudiante, abrir un espacio breve para escuchar sugerencias específicas y explicar cómo la metodología actual se alinea con los requerimientos del examen.",
+                    "Ignorar el comentario para no dar importancia a la interrupción y continuar con la clase de manera firme para recuperar el tiempo.",
+                    "Sancionar al estudiante por su falta de respeto frente al grupo para evitar que otros sigan su ejemplo y se pierda el control del aula.",
+                    "Aceptar inmediatamente que la metodología puede estar fallando y pedir a los alumnos que ellos mismos decidan cómo quieren llevar la clase."
+                ],
+                correct: 0,
+                sustento: "La respuesta más apropiada implica una gestión asertiva del aula. Validar la emoción del grupo permite reducir la tensión, mientras que mantener la estructura pedagógica con fundamentos técnicos demuestra liderazgo y capacidad de mediación."
+            },
+            {
+                question: "Durante una jornada de observación en un colegio rural multigrado, la persona postulante nota que los estudiantes de diferentes edades muestran dificultades para trabajar en equipo. El director ofrece acceso a las planificaciones de aula y a los registros de evaluación diagnóstica de los últimos tres meses. Como futura maestra o futuro maestro interesado en su formación, ¿cuál sería la acción más pertinente para comprender mejor esta situación?",
+                options: [
+                    "Analizar los registros de evaluación diagnóstica y las planificaciones para identificar si se han diseñado estrategias de aprendizaje cooperativo adaptadas a la diversidad de edades.",
+                    "Entrevistar individualmente a cada niño para preguntarles por qué no les gusta trabajar con sus compañeros de otras edades.",
+                    "Sugerir al director que cambie el modelo multigrado por uno graduado tradicional para evitar los conflictos de edad.",
+                    "Limitarse a observar sin revisar los documentos, ya que la observación directa es la única fuente confiable de información pedagógica."
+                ],
+                correct: 0,
+                sustento: "La pertinencia radica en el uso de instrumentos técnicos disponibles para triangular la información. Revisar planificaciones y diagnósticos permite entender la base pedagógica sobre la cual se está intentando fomentar el trabajo en equipo."
+            },
+            {
+                question: "Durante una reunión de padres de familia, un padre expresa con gran emotividad su preocupación porque su hijo, quien presenta dificultades de aprendizaje, no está recibiendo suficiente apoyo. Mientras expone su situación, varios padres comienzan a mostrar señales de impaciencia. Como maestra o maestro a cargo de la reunión, ¿cuál sería la estrategia más apropiada para manejar esta situación?",
+                options: [
+                    "Escuchar con empatía al padre, validar su sentimiento y proponer una reunión individual inmediata para tratar el caso de forma personalizada, respetando el tiempo de la reunión general.",
+                    "Pedir al padre que guarde silencio porque el tema es personal y no debe interrumpir la agenda colectiva de la reunión escolar.",
+                    "Permitir que el padre hable todo el tiempo necesario, aunque la reunión se extienda por horas y el resto de los padres se retire molesto.",
+                    "Solicitar a los otros padres que tengan paciencia de forma agresiva para que el padre se sienta protegido por el docente."
+                ],
+                correct: 0,
+                sustento: "La gestión de habilidades socioemocionales requiere equilibrio entre la empatía individual y la responsabilidad grupal. La escucha activa combinada con la derivación a un canal personalizado es la técnica más efectiva en juicios situacionales."
+            },
+            {
+                question: "Durante una reunión de docentes para planificar el proyecto interdisciplinario anual, surge un conflicto entre dos colegas con enfoques pedagógicos diferentes: la profesora de Ciencias Sociales propone un proyecto basado en la investigación histórica, mientras que el profesor de Matemática defiende uno centrado en estadísticas. La discusión se torna tensa. Como maestra o maestro que busca mediar, ¿cuál sería la estrategia más adecuada?",
+                options: [
+                    "Identificar puntos de convergencia entre ambas propuestas y sugerir un tema común donde la investigación histórica use la estadística como herramienta de validación.",
+                    "Apoyar a la profesora de Ciencias Sociales por ser un enfoque más crítico y humano para los estudiantes de secundaria.",
+                    "Sugerir que se hagan dos proyectos por separado para evitar más discusiones y que cada docente trabaje en su área.",
+                    "Mantenerse al margen de la discusión para evitar problemas personales con los colegas involucrados en la planificación."
+                ],
+                correct: 0,
+                sustento: "La mediación en el ámbito docente busca la sinergia interdisciplinaria. La respuesta correcta refleja la capacidad de síntesis y colaboración, valores fundamentales para el trabajo en equipo en la formación profesional."
+            },
+            {
+                question: "Durante una sesión de trabajo en grupo en cuarto de primaria, un estudiante con diagnóstico de TEA manifiesta incomodidad ante los ruidos fuertes. Un grupo de estudiantes comienza a burlarse de sus reacciones. La persona postulante observa la situación. ¿Cuál sería la intervención más adecuada en ese momento?",
+                options: [
+                    "Detener la actividad, asegurar la tranquilidad del estudiante con TEA y realizar una breve reflexión grupal sobre el respeto a la diversidad y la empatía.",
+                    "Ignorar las burlas para no darles protagonismo y esperar a que los niños se cansen de molestar a su compañero.",
+                    "Retirar al estudiante con TEA del aula para que no sufra más burlas, dejándolo solo en la biblioteca o dirección.",
+                    "Gritar fuertemente a los alumnos que se burlan para que sientan el mismo miedo que el estudiante afectado."
+                ],
+                correct: 0,
+                sustento: "La intervención docente inmediata frente a situaciones de vulneración de derechos es obligatoria. El enfoque debe ser restaurativo, garantizando la seguridad del estudiante y transformando el conflicto en una oportunidad de aprendizaje socioemocional."
+            },
+            // Preguntas adicionales de alto nivel
+            {
+                question: "Usted nota que un colega docente está pasando por un momento personal difícil y esto está afectando su paciencia con los estudiantes, quienes se quejan de su trato hosco. ¿Qué acción demuestra un nivel superior de competencia socioemocional?",
+                options: [
+                    "Acercarse al colega en un ambiente privado, expresar apoyo de forma empática y sugerir estrategias para gestionar el estrés frente al aula.",
+                    "Informar inmediatamente a la dirección sobre la falta de profesionalismo del colega para que tomen medidas correctivas.",
+                    "Hablar con los estudiantes y darles la razón, pidiéndoles que aguanten al profesor porque 'así es su carácter'.",
+                    "No intervenir, considerando que los problemas personales de los colegas son asuntos privados que no deben incumbir a terceros."
+                ],
+                correct: 0,
+                sustento: "El sustento se basa en la solidaridad profesional y la inteligencia emocional. El apoyo entre pares fortalece el clima institucional y previene el deterioro de la convivencia escolar."
+            },
+            {
+                question: "Al implementar una actividad innovadora, la mitad de sus estudiantes se muestra entusiasmado, mientras que la otra mitad muestra apatía y desinterés, afectando el ritmo de la clase. ¿Cómo gestionaría esta diversidad de motivaciones?",
+                options: [
+                    "Analizar las causas del desinterés del segundo grupo y adaptar elementos de la actividad para que conecten con sus propios intereses o estilos de aprendizaje.",
+                    "Continuar trabajando solo con el grupo entusiasmado, pues no se puede obligar a nadie a aprender si no tiene voluntad.",
+                    "Castigar al grupo apático con tareas adicionales para forzarlos a participar en la actividad innovadora.",
+                    "Suspender la actividad para todos y volver a la enseñanza tradicional basada en dictado para mantener el orden."
+                ],
+                correct: 0,
+                sustento: "La flexibilidad pedagógica y la gestión de la motivación son habilidades clave. La respuesta correcta demuestra resiliencia docente y capacidad de ajuste metodológico ante la respuesta del grupo."
+            },
+            {
+                question: "Un estudiante le confiesa, bajo promesa de secreto, que está siendo víctima de ciberacoso por parte de compañeros del mismo curso. Usted sabe que la normativa exige reporte, pero el estudiante tiene miedo. ¿Cuál es la ruta más ética y profesional?",
+                options: [
+                    "Explicar al estudiante la importancia de su protección, asegurarle acompañamiento y activar los protocolos de la institución de manera inmediata pero sensible.",
+                    "Respetar el secreto profesional y no decir nada a nadie, esperando que el problema se resuelva solo con el tiempo.",
+                    "Enfrentar directamente a los acosadores frente a todo el curso para darles una lección pública de moralidad.",
+                    "Llamar a los padres del estudiante de forma anónima para que ellos se encarguen de la situación sin que el colegio se entere."
+                ],
+                correct: 0,
+                sustento: "La ética profesional docente prioriza el bienestar del menor sobre cualquier pacto de silencio. El manejo de la confidencialidad debe alinearse siempre con la protección efectiva y el marco legal vigente."
+            },
+            {
+                question: "En un proyecto de aprendizaje servicio, la comunidad local se muestra escéptica y rechaza la participación de los estudiantes por considerarlos inexpertos. ¿Cómo lideraría usted el manejo de este rechazo?",
+                options: [
+                    "Organizar una mesa de diálogo donde los estudiantes presenten su plan de trabajo y escuchen activamente las preocupaciones de los líderes comunitarios.",
+                    "Cancelar el proyecto y buscar otra comunidad que sea más agradecida con la ayuda que los estudiantes quieren brindar.",
+                    "Ignorar el rechazo y presentarse en el lugar con los estudiantes para imponer la realización de las actividades planificadas.",
+                    "Culpar a los estudiantes de la falta de confianza de la comunidad y pedirles que ellos mismos convenzan a los vecinos uno por uno."
+                ],
+                correct: 0,
+                sustento: "El liderazgo socioemocional implica la capacidad de gestionar relaciones con el entorno. La comunicación asertiva y el reconocimiento de la validez de la otra parte son fundamentales para la resolución de conflictos comunitarios."
+            },
+            {
+                question: "Durante una evaluación formativa, un estudiante con altas capacidades termina siempre mucho antes que el resto y comienza a distraer a sus compañeros de forma disruptiva. ¿Cuál es la respuesta pedagógica más equilibrada?",
+                options: [
+                    "Asignarle retos de mayor complejidad o tareas de profundización que mantengan su interés y canalicen su energía de forma productiva.",
+                    "Pedirle que se siente en un rincón y se quede quieto sin hacer ruido hasta que el último de sus compañeros termine.",
+                    "Darle permiso para que salga al patio a jugar solo cada vez que termine antes de tiempo, para que no moleste en el aula.",
+                    "Instruirlo para que le dé las respuestas a los compañeros que están retrasados para que todos terminen al mismo tiempo."
+                ],
+                correct: 0,
+                sustento: "La atención a la diversidad también incluye a los estudiantes con altas capacidades. La respuesta correcta evita la exclusión y aprovecha el potencial del estudiante sin generar distorsiones en el ritmo grupal."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 30 * 60; // 30 minutes in seconds
+
+        const questionText = document.getElementById('question-text');
+        const optionsGrid = document.getElementById('options-grid');
+        const feedback = document.getElementById('feedback');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const nextBtn = document.getElementById('next-btn');
+        const progressFill = document.getElementById('progress-fill');
+        const qCounter = document.getElementById('q-counter');
+        const timerDisplay = document.getElementById('timer');
+        const quizCard = document.getElementById('quiz-card');
+        const resultScreen = document.getElementById('result-screen');
+
+        function startTimer() {
+            timer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    showResults();
+                }
+                if (timeLeft <= 300) { // Red color for last 5 mins
+                    timerDisplay.classList.add('text-red-500');
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            questionText.textContent = q.question;
+            optionsGrid.innerHTML = '';
+            feedback.classList.add('hidden');
+            
+            qCounter.textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+            progressFill.style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+
+            q.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn w-full text-left p-5 rounded-xl bg-white border-2 border-gray-100 hover:shadow-md font-medium';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(index);
+                optionsGrid.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const q = questions[currentQuestionIndex];
+            const buttons = optionsGrid.querySelectorAll('button');
+            
+            buttons.forEach(btn => btn.disabled = true);
+            
+            if (selectedIndex === q.correct) {
+                buttons[selectedIndex].classList.add('correct');
+                feedbackTitle.textContent = "¡Excelente Elección!";
+                feedbackTitle.className = "font-bold text-lg mb-2 text-emerald-700";
+                feedback.classList.add('bg-emerald-50', 'border-emerald-500');
+                score++;
+            } else {
+                buttons[selectedIndex].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackTitle.textContent = "Consideración Pedagógica";
+                feedbackTitle.className = "font-bold text-lg mb-2 text-amber-700";
+                feedback.classList.add('bg-amber-50', 'border-amber-500');
+            }
+
+            feedbackText.textContent = q.sustento;
+            feedback.classList.remove('hidden');
+        }
+
+        nextBtn.onclick = () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            clearInterval(timer);
+            quizCard.classList.add('hidden');
+            document.getElementById('timer-container').classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            const percentage = (score / questions.length) * 100;
+            document.getElementById('final-score').textContent = `${score}/${questions.length}`;
+            document.getElementById('final-percentage').textContent = `${percentage}%`;
+            
+            const badge = document.getElementById('performance-badge');
+            const msg = document.getElementById('performance-msg');
+            
+            if (percentage >= 80) {
+                badge.textContent = "DESEMPEÑO ALTO";
+                badge.className = "inline-block px-8 py-2 rounded-full font-bold text-lg mb-6 bg-emerald-100 text-emerald-700";
+                msg.textContent = "¡Felicidades! Demuestras un alto grado de madurez socioemocional y criterio profesional para la docencia.";
+            } else if (percentage >= 60) {
+                badge.textContent = "DESEMPEÑO MEDIO";
+                badge.className = "inline-block px-8 py-2 rounded-full font-bold text-lg mb-6 bg-amber-100 text-amber-700";
+                msg.textContent = "Buen trabajo, aunque existen áreas de oportunidad para fortalecer tu juicio situacional y asertividad docente.";
+            } else {
+                badge.textContent = "DESEMPEÑO BAJO";
+                badge.className = "inline-block px-8 py-2 rounded-full font-bold text-lg mb-6 bg-red-100 text-red-700";
+                msg.textContent = "Es importante profundizar en el estudio de las habilidades blandas y protocolos de convivencia escolar. ¡Sigue practicando!";
+            }
+        }
+
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>

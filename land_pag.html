@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Admisión ESFM 2026 - Bolivia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navbar / Navegación Superior -->
+    <nav class="sticky top-0 z-50 bg-blue-900 text-white shadow-md px-6 py-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i data-lucide="graduation-cap" class="text-yellow-400 w-6 h-6"></i>
+                <span class="font-bold tracking-tight hidden sm:inline">ESFM 2026</span>
+            </div>
+            <a href="#simuladores" class="bg-yellow-500 hover:bg-yellow-400 text-blue-950 px-4 py-2 rounded-full font-bold text-sm transition-all flex items-center gap-2 shadow-lg">
+                <i data-lucide="play-circle" class="w-4 h-4"></i>
+                Ir a simulador
+            </a>
+        </div>
+    </nav>
+
+    <!-- Header / Hero Section -->
+    <header class="hero-gradient text-white py-16 px-6 text-center shadow-lg">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex justify-center mb-6">
+                <i data-lucide="graduation-cap" class="w-16 h-16 text-yellow-400"></i>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-4 uppercase tracking-tight leading-tight">
+                Simulador de Admisión ESFM 2026
+            </h1>
+            <p class="text-xl md:text-2xl font-light text-blue-100 max-w-3xl mx-auto">
+                Postulantes a las Escuelas Superiores de Formación de Maestros y Unidades Académicas del Estado Plurinacional de Bolivia
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-12 space-y-20">
+
+        <!-- 1. Objetivo General -->
+        <section class="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-5">
+                <i data-lucide="target" class="w-40 h-40"></i>
+            </div>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="bg-blue-600 p-3 rounded-2xl">
+                    <i data-lucide="target" class="text-white w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-blue-900">1. Objetivo General</h2>
+            </div>
+            <p class="text-lg leading-relaxed text-slate-700">
+                Garantizar que el aspirante desarrolle y fortalezca las competencias cognitivas, analíticas y procedimentales requeridas para el proceso de admisión a las ESFM, mediante una experiencia de evaluación diagnóstica que replique fielmente las condiciones, el rigor conceptual y las áreas de conocimiento establecidas en la convocatoria oficial. Constituyéndose en un apoyo fundamental para el postulante.
+            </p>
+        </section>
+
+        <!-- 2. Estrategias Comprensión Lectora -->
+        <section class="space-y-8">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="bg-emerald-600 p-3 rounded-2xl">
+                    <i data-lucide="book-open" class="text-white w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-800">2. Estrategias para la Comprensión Lectora</h2>
+            </div>
+            <p class="text-slate-600 mb-8 max-w-3xl">Para garantizar un procesamiento de información eficiente y un desempeño óptimo en las evaluaciones, recomendamos seguir estas directrices metodológicas:</p>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-emerald-50 p-8 rounded-2xl border border-emerald-100 card-hover">
+                    <i data-lucide="anchor" class="text-emerald-700 mb-4 w-10 h-10"></i>
+                    <h3 class="font-bold text-xl mb-3 text-emerald-900">Anclaje Cognitivo</h3>
+                    <p class="text-sm text-slate-700 leading-relaxed">Emplear técnicas de asociación mnemotécnica, vinculando conceptos clave con estructuras de conocimiento previas para facilitar la retención.</p>
+                </div>
+                <div class="bg-emerald-50 p-8 rounded-2xl border border-emerald-100 card-hover">
+                    <i data-lucide="search" class="text-emerald-700 mb-4 w-10 h-10"></i>
+                    <h3 class="font-bold text-xl mb-3 text-emerald-900">Gestión del Léxico</h3>
+                    <p class="text-sm text-slate-700 leading-relaxed">Ante términos técnicos, realice una búsqueda semántica exhaustiva y relectura del fragmento para consolidar el contexto global.</p>
+                </div>
+                <div class="bg-emerald-50 p-8 rounded-2xl border border-emerald-100 card-hover">
+                    <i data-lucide="highlighter" class="text-emerald-700 mb-4 w-10 h-10"></i>
+                    <h3 class="font-bold text-xl mb-3 text-emerald-900">Lectura Activa</h3>
+                    <p class="text-sm text-slate-700 leading-relaxed">No sea un receptor pasivo; subraye ideas principales y elabore síntesis mentales para estructurar jerárquicamente la información.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Protocolo de Preparación -->
+        <section class="bg-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-2xl">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="bg-yellow-500 p-3 rounded-2xl text-slate-900">
+                    <i data-lucide="clipboard-check" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold">3. Protocolo de Preparación</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <div class="flex gap-6">
+                    <div class="text-4xl font-black text-yellow-500 opacity-50">01</div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Fase de Estudio</h3>
+                        <p class="text-slate-400">Acceda al repositorio institucional y realice una lectura crítica de los materiales bibliográficos. Es el marco conceptual necesario.</p>
+                    </div>
+                </div>
+                <div class="flex gap-6">
+                    <div class="text-4xl font-black text-yellow-500 opacity-50">02</div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-white">Fase de Aplicación</h3>
+                        <p class="text-slate-400">Ejecute el simulador para validar el dominio de competencias y familiarizarse con la resolución de casos en tiempo real.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 p-6 bg-slate-800 rounded-2xl border-l-4 border-yellow-500">
+                <div class="flex items-start gap-4">
+                    <i data-lucide="info" class="text-yellow-500 shrink-0 mt-1"></i>
+                    <div class="text-sm space-y-2">
+                        <p>El Ministerio de Educación publicará de manera oportuna las listas oficiales, sedes y cronograma.</p>
+                        <p class="font-bold text-yellow-50">Requisitos de ingreso: Cédula de Identidad, Formulario de Inscripción y Comprobante de Depósito Bancario.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <span class="text-2xl font-bold text-yellow-400 italic">¡Éxitos en su prueba de admisión!</span>
+            </div>
+        </section>
+
+        <!-- Sección de Acceso a Simuladores -->
+        <section id="simuladores" class="pt-10 scroll-mt-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-blue-900 uppercase mb-2">Acceso a Simuladores</h2>
+                <p class="text-slate-600 text-lg">Seleccione uno de los temas para ingresar al simulador.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                
+                <!-- Comprensión Lectora -->
+                <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-blue-800">
+                        <i data-lucide="languages"></i> COMPONENTE: COMPRENSIÓN LECTORA
+                    </h3>
+                    <ul class="space-y-3">
+                        <li><a href="1.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>1.</span> Deforestación y Cambio Climático en los Andes Bolivianos</a></li>
+                        <li><a href="2.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>2.</span> Educación Digital y Brecha de Conectividad en Bolivia</a></li>
+                        <li><a href="3.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>3.</span> Historia y evolución del Internet en Bolivia</a></li>
+                        <li><a href="4.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>4.</span> Impacto de la digitalización y redes sociales en jóvenes</a></li>
+                        <li><a href="5.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>5.</span> Inteligencia artificial en la educación boliviana</a></li>
+                        <li><a href="6.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>6.</span> Salud y sostenibilidad: Impacto del cambio climático</a></li>
+                        <li><a href="7.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>7.</span> Economía circular y gestión de residuos en Bolivia</a></li>
+                        <li><a href="8.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>8.</span> Resistencia a los antibióticos en Bolivia</a></li>
+                        <li><a href="9.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>9.</span> Gestión sostenible de recursos hídricos y glaciares</a></li>
+                        <li><a href="10.html" target="_blank" class="flex gap-2 hover:text-blue-600 transition-colors text-sm border-b pb-2"><span>10.</span> IA Generativa y su Impacto en la Sociedad Boliviana</a></li>
+                    </ul>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Conocimientos Generales -->
+                    <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-indigo-800">
+                            <i data-lucide="brain-circuit"></i> COMPONENTE: CONOCIMIENTOS GENERALES
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="fisica.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">FÍSICA</a>
+                            <a href="mate.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">MATEMÁTICA</a>
+                            <a href="quim.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">QUÍMICA</a>
+                            <a href="geo.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">GEOGRAFÍA</a>
+                            <a href="psico.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">PSICOLOGÍA</a>
+                            <a href="FILO.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">FILOSOFÍA</a>
+                            <a href="his.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">HISTORIA</a>
+                            <a href="bio.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">BIOLOGÍA</a>
+                            <a href="tt.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">TÉCNICA TECNOLÓGICA</a>
+                            <a href="len.html" target="_blank" class="bg-slate-50 p-2 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors text-center border uppercase tracking-wider">LENGUAJE</a>
+                        </div>
+                    </div>
+
+                    <!-- Razonamiento Lógico -->
+                    <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-orange-800">
+                            <i data-lucide="cpu"></i> COMPONENTE: RAZONAMIENTO LÓGICO
+                        </h3>
+                        <ul class="space-y-4">
+                            <li><a href="p.html" target="_blank" class="flex items-center gap-3 p-3 rounded-xl border border-orange-100 hover:bg-orange-50 transition-all text-sm font-medium"><i data-lucide="layout-grid" class="w-4 h-4"></i> Identificación de Patrones</a></li>
+                            <li><a href="rl.html" target="_blank" class="flex items-center gap-3 p-3 rounded-xl border border-orange-100 hover:bg-orange-50 transition-all text-sm font-medium"><i data-lucide="variable" class="w-4 h-4"></i> Razonamiento Lógico Matemático 1-50</a></li>
+                            <li><a href="rl2.html" target="_blank" class="flex items-center gap-3 p-3 rounded-xl border border-orange-100 hover:bg-orange-50 transition-all text-sm font-medium"><i data-lucide="variable" class="w-4 h-4"></i> Razonamiento Lógico Matemático 51-100</a></li>
+                            <li><a href="rp1.html" target="_blank" class="flex items-center gap-3 p-3 rounded-xl border border-orange-100 hover:bg-orange-50 transition-all text-sm font-medium"><i data-lucide="calculator" class="w-4 h-4"></i> Resolución de Problemas Matemáticos 1-50</a></li>
+                            <li><a href="rp2.html" target="_blank" class="flex items-center gap-3 p-3 rounded-xl border border-orange-100 hover:bg-orange-50 transition-all text-sm font-medium"><i data-lucide="calculator" class="w-4 h-4"></i> Resolución de Problemas Matemáticos 51- 100</a></li>
+                            <li><a href="rp3.html" target="_blank" class="flex items-center gap-3 p-3 rounded-xl border border-orange-100 hover:bg-orange-50 transition-all text-sm font-medium"><i data-lucide="calculator" class="w-4 h-4"></i> Resolución de Problemas Matemáticos extra 1</a></li>
+                            <li><a href="rp11.html" target="_blank" class="flex items-center gap-3 p-3 rounded-xl border border-orange-100 hover:bg-orange-50 transition-all text-sm font-medium"><i data-lucide="calculator" class="w-4 h-4"></i> Resolución de Problemas Matemáticos extra 2</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Socioemocionales con enlace -->
+                    <a href="ss.html" target="_blank" class="block bg-gradient-to-r from-pink-500 to-rose-500 rounded-3xl p-8 shadow-lg text-white card-hover transition-all">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-xl font-bold mb-2 flex items-center gap-2">
+                                    <i data-lucide="heart"></i> COMPONENTE: HABILIDADES SOCIOEMOCIONALES
+                                </h3>
+                                <p class="text-sm text-pink-100">Evaluación del perfil vocacional y aptitudes interpersonales para la docencia.</p>
+                            </div>
+                            <i data-lucide="external-link" class="w-6 h-6 text-pink-200"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-white py-12 mt-20 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <p class="text-slate-500 mb-4">© 2026 Sistema de simulación Admisión ESFM Bolivia. Todos los derechos reservados.</p>
+            <div class="flex justify-center items-center gap-2 font-mono text-yellow-500">
+                <i data-lucide="code-2" class="w-5 h-5"></i>
+                <span class="text-lg">Desarrollado por Victor-2026</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+    </script>
+</body>
+</html>

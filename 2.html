@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Académico - Educación Superior Bolivia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f4 0%, #ffffff 100%);
+            color: #1a2e35; /* Azul petróleo profundo para evitar fatiga */
+            min-height: 100vh;
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            text-align: left;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover {
+            transform: translateY(-2px);
+            background-color: #f0fdfa;
+            border-color: #99f6e4;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header / Volver -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-6">
+        <a href="land_pag.html" class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm font-semibold hover:bg-gray-50 transition flex items-center gap-2">
+            <span>←</span> Volver
+        </a>
+        <div id="timer" class="text-xl font-bold text-teal-700 bg-white px-4 py-2 rounded-full shadow-sm">
+            30:00
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto glass-card rounded-2xl shadow-xl overflow-hidden mb-8">
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-2">
+            <div id="progress-bar" class="bg-teal-500 h-2 transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+        <!-- Quiz Content -->
+        <div id="quiz-container" class="p-6 md:p-10">
+            <div id="intro-screen">
+                <h1 class="text-3xl font-bold mb-4 text-teal-800">"Educación Digital y la Brecha de Conectividad en Bolivia: Desafíos Actuales y Soluciones Emergentes”</h1>
+                <p class="text-gray-600 mb-8 leading-relaxed italic">
+                    Bienvenido al simulador académico. Esta prueba mide tu capacidad de análisis y comprensión de textos complejos. Tienes 30 minutos para resolver 30 preguntas basadas rigurosamente en el repositorio oficial.
+                </p>
+                <button onclick="startQuiz()" class="w-full bg-teal-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition transform active:scale-95 shadow-lg">
+                    Comenzar Simulador
+                </button>
+            </div>
+
+            <div id="question-screen" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <span id="question-number" class="text-teal-600 font-bold uppercase tracking-wider text-sm">Pregunta 1 de 30</span>
+                </div>
+                
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 leading-snug text-gray-800"></h2>
+                
+                <div id="options-container" class="space-y-4">
+                    <!-- Options will be injected here -->
+                </div>
+
+                <!-- Feedback Area -->
+                <div id="feedback-area" class="mt-8 p-5 rounded-xl hidden">
+                    <p id="feedback-title" class="font-bold mb-2"></p>
+                    <p id="feedback-text" class="text-sm leading-relaxed"></p>
+                    <button onclick="nextQuestion()" class="mt-4 bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-black transition">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Final Results Screen -->
+            <div id="results-screen" class="hidden text-center py-10">
+                <h2 class="text-4xl font-bold mb-2 text-teal-800">¡Simulacro Finalizado!</h2>
+                <div id="score-circle" class="w-32 h-32 rounded-full border-8 border-teal-500 flex items-center justify-center mx-auto my-8">
+                    <span id="final-score" class="text-3xl font-bold">0/30</span>
+                </div>
+                <div class="mb-8">
+                    <p id="achievement-percent" class="text-2xl font-semibold text-gray-700"></p>
+                    <p id="performance-rank" class="text-xl mt-2 px-4 py-1 rounded-full inline-block font-bold"></p>
+                </div>
+                <p id="performance-msg" class="text-gray-600 mb-8 italic"></p>
+                
+                <button onclick="location.reload()" class="bg-teal-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-teal-700 transition">
+                    Reiniciar Simulador
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Credits -->
+    <footer class="text-center text-gray-500 text-sm space-y-2 pb-10">
+        <p class="font-bold tracking-widest uppercase">SIMULADOR ACADÉMICO DE COMPRENSIÓN LECTORA</p>
+        <p>"Con esfuerzo lograrás el éxito, no desmayes"</p>
+    </footer>
+
+    <script>
+        const questions = [
+            {
+                q: "¿Cómo se define el concepto de brecha digital según el artículo?",
+                options: [
+                    "Es la incapacidad económica de los hogares rurales para comprar dispositivos electrónicos de alta gama.",
+                    "Es la diferencia entre quienes pueden acceder y utilizar eficazmente las TIC y quienes no lo pueden.",
+                    "Es la distancia geográfica existente entre los centros urbanos y las comunidades rurales sin internet.",
+                    "Es la falta de interés de los docentes rurales en capacitarse en metodologías de aprendizaje en línea."
+                ],
+                correct: 1,
+                sustento: "El artículo establece explícitamente: 'La brecha digital se define como la diferencia entre quienes pueden acceder y utilizar eficazmente las TIC y quienes no lo pueden'."
+            },
+            {
+                q: "¿Cuál es la secuencia correcta de acceso a internet en 2023 según el texto?",
+                options: [
+                    "Urbano 71%, Rural 33%, Primaria 42%, Secundaria 58%",
+                    "Urbano 58%, Rural 42%, Primaria 33%, Secundaria 71%",
+                    "Urbano 71%, Rural 33%, Primaria 58%, Secundaria 42%",
+                    "Urbano 33%, Rural 71%, Primaria 42%, Secundaria 58%"
+                ],
+                correct: 0,
+                sustento: "La tasa de acceso en hogares urbanos es 71%, rurales 33%, estudiantes de primaria 42% y secundaria 58%."
+            },
+            {
+                q: "¿Cuáles son los pilares esenciales para lograr una educación digital inclusiva en Bolivia?",
+                options: [
+                    "Inversión extranjera directa, reducción de impuestos y donación masiva de computadoras.",
+                    "Infraestructura, formación docente, entornos de aprendizaje colaborativos y participación comunitaria.",
+                    "Eliminación de la educación presencial y transición total a plataformas virtuales pagas.",
+                    "Construcción de carreteras en el Beni y digitalización de bibliotecas municipales urbanas."
+                ],
+                correct: 1,
+                sustento: "El texto afirma que las políticas deben considerar simultáneamente 'la inversión en infraestructura, la formación continua de los docentes y la creación de entornos de aprendizaje colaborativos', sumando la participación comunitaria."
+            },
+            {
+                q: "¿Qué universidad implementó el Programa de Formación Docente en Tecnologías Educativas (FOTED)?",
+                options: [
+                    "Universidad Católica Boliviana (UCB)",
+                    "Universidad Mayor de San Simón (UMSS)",
+                    "Universidad Mayor de San Andrés (UMSA)",
+                    "Universidad Pública de El Alto (UPEA)"
+                ],
+                correct: 2,
+                sustento: "El artículo indica explícitamente que 'la Universidad Mayor de San Andrés (UMSA) emprendió el Programa de Formación Docente en Tecnologías Educativas (FOTED)'."
+            },
+            {
+                q: "¿En qué porcentaje se redujo el costo promedio por kilómetro de fibra óptica gracias a las alianzas público-privadas?",
+                options: [
+                    "10%",
+                    "15%",
+                    "20%",
+                    "25%"
+                ],
+                correct: 1,
+                sustento: "En el apartado de 'Expansión de infraestructura' se indica que permitió 'reducir el costo promedio por kilómetro en un 15% respecto a estimaciones previas'."
+            },
+            {
+                q: "¿Cuál es la barrera principal para una educación digital equitativa según el análisis?",
+                options: [
+                    "Únicamente la falta de interés político en las zonas rurales del país.",
+                    "La combinación de infraestructura insuficiente, escasez de dispositivos y falta de capacitación docente.",
+                    "El alto costo de las plataformas de gestión de aprendizaje (LMS) internacionales.",
+                    "La geografía montañosa de Bolivia que imposibilita cualquier tipo de conexión satelital."
+                ],
+                correct: 1,
+                sustento: "El artículo enfatiza que la combinación de estos tres problemas estructurales (infraestructura, dispositivos y capacitación) es la razón de la limitación."
+            },
+            {
+                q: "Para cerrar la brecha de aprendizaje asociada a la falta de conectividad, es necesario:",
+                options: [
+                    "Priorizar exclusivamente la compra de tablets para estudiantes de primaria.",
+                    "Políticas integradas que consideren infraestructura, formación docente y participación comunitaria.",
+                    "Aumentar los impuestos a las empresas de telecomunicaciones urbanas.",
+                    "Distribuir materiales en formato PDF únicamente mediante radio enlaces."
+                ],
+                correct: 1,
+                sustento: "Los autores concluyen que 'políticas integradas que consideren la infraestructura, la formación docente y la participación comunitaria' son esenciales."
+            },
+            {
+                q: "¿Cuál es la estrategia más eficaz para reducir la brecha de conectividad digital en Bolivia?",
+                options: [
+                    "Un conjunto de soluciones combinadas que atiendan infraestructura, equipos, preparación docente y participación comunitaria.",
+                    "Instalar fibra óptica únicamente en los municipios con más del 50% de población rural.",
+                    "Capacitar a los padres de familia antes que a los docentes en el uso de Zoom.",
+                    "Sustituir los libros físicos por bibliotecas digitales municipales en Tarija."
+                ],
+                correct: 0,
+                sustento: "El artículo muestra que ninguna iniciativa aislada logra cerrar la brecha; cada una es parte de un conjunto de soluciones emergentes que deben combinarse."
+            },
+            {
+                q: "¿Qué diferencia económica se menciona entre la expansión de fibra y los programas de dispositivos?",
+                options: [
+                    "La fibra redujo costos en un 40% y los dispositivos en un 15%.",
+                    "La fibra redujo costos en un 15% y los programas de dispositivos redujeron la brecha de equipos en un 40%.",
+                    "Ambos programas lograron un ahorro idéntico del 27% para el Estado boliviano.",
+                    "No existe diferencia económica relevante mencionada en el texto."
+                ],
+                correct: 1,
+                sustento: "El texto indica reducción de costo de fibra en 15% y disminución de brecha de dispositivos en 40% (Conecta Ti)."
+            },
+            {
+                q: "La estrategia más eficaz según los actores involucrados combina:",
+                options: [
+                    "Inversión privada absoluta y gestión de padres de familia sin intervención del gobierno.",
+                    "Infraestructura (PNCR), dispositivos compartidos (ConectaTi), capacitación (FOTED) y participación comunitaria.",
+                    "Lanzamiento de satélites propios y capacitación docente internacional.",
+                    "Donaciones individuales de empresas de telecomunicaciones de Santa Cruz."
+                ],
+                correct: 1,
+                sustento: "El artículo resalta que la interacción de estas dimensiones (infraestructura, dispositivos, comunidad y capacitación) es clave."
+            },
+            {
+                q: "¿Qué efecto produce la insuficiente cobertura de fibra óptica en la educación rural?",
+                options: [
+                    "Aumento de la participación de los padres en comités de mantenimiento.",
+                    "Limita el uso de plataformas interactivas y provoca deserción y rezago escolar.",
+                    "Mejora del 12% en puntajes debido al uso de radio enlaces de corto alcance.",
+                    "Reducción automática de la brecha de dispositivos en un 55%."
+                ],
+                correct: 1,
+                sustento: "El texto señala que la escasa conectividad limita el uso de LMS y obliga a usar materiales pasivos, lo que provoca deserción y rezago."
+            },
+            {
+                q: "Dado el plan de expansión de fibra, ¿qué se proyecta en el rendimiento académico rural en 3 años?",
+                options: [
+                    "Una disminución del 12% debido a la distracción digital de los estudiantes.",
+                    "Un incremento de alrededor del 10% en los resultados académicos.",
+                    "Un estancamiento total mientras no se capacite al 100% de los docentes.",
+                    "Una migración masiva de estudiantes de secundaria a zonas urbanas."
+                ],
+                correct: 1,
+                sustento: "Al inferir del aumento del 12% actual en quienes tienen red, es razonable esperar una mejora similar (aprox. 10%) al ampliar la cobertura."
+            },
+            {
+                q: "¿Cómo se relaciona la topografía con la elección tecnológica en Bolivia?",
+                options: [
+                    "La fibra óptica se usa en todo el país independientemente de la montaña.",
+                    "El radio enlace es preferible en zonas de difícil acceso como el Beni por la dificultad de cableado.",
+                    "El radio enlace se usa exclusivamente en La Paz y Santa Cruz.",
+                    "La tecnología satelital ha sustituido por completo a la fibra óptica por ser más económica."
+                ],
+                correct: 1,
+                sustento: "El artículo destaca la efectividad del radio enlace en el Beni, donde la topografía dificulta cables subterráneos."
+            },
+            {
+                q: "¿En qué consiste la estrategia más eficaz para reducir la brecha de conectividad?",
+                options: [
+                    "Invertir el 100% del presupuesto en infraestructura de fibra óptica.",
+                    "Componentes complementarios: infraestructura, dispositivos compartidos y capacitación docente continua.",
+                    "Sustituir a los docentes con plataformas de inteligencia artificial.",
+                    "Vender los equipos de las bibliotecas digitales para financiar la fibra óptica."
+                ],
+                correct: 1,
+                sustento: "La conclusión subraya la necesidad de políticas integradas que consideren estos componentes complementarios."
+            },
+            {
+                q: "¿Qué efecto probable tiene ampliar la fibra óptica rural en el rendimiento académico?",
+                options: [
+                    "Ninguno, si no se cuenta con docentes de la UMSA.",
+                    "Un incremento similar al 12% observado en estudiantes con acceso regular.",
+                    "Una reducción del costo de vida en los municipios rurales.",
+                    "Un aumento del 40% en la deserción escolar por falta de supervisión."
+                ],
+                correct: 1,
+                sustento: "Al mejorar la conectividad, más estudiantes tendrán acceso regular, lo que permite inferir un incremento similar al mencionado (12%)."
+            },
+            {
+                q: "¿Cuál es el propósito principal de combinar infraestructura, dispositivos y capacitación?",
+                options: [
+                    "Cerrar gradualmente la brecha y mejorar el rendimiento académico y la equidad.",
+                    "Reducir los costos operativos del Ministerio de Obras Públicas.",
+                    "Cumplir con estándares de la UNESCO para recibir donaciones extranjeras.",
+                    "Aumentar la tasa de acceso a internet urbano al 90%."
+                ],
+                correct: 0,
+                sustento: "Estas tres líneas se describen como estrategias integrales para cerrar la brecha y mejorar la equidad rural-urbana."
+            },
+            {
+                q: "¿Qué principio general se infiere sobre la estrategia eficaz para reducir la brecha digital?",
+                options: [
+                    "La tecnología por sí sola resuelve los problemas de aprendizaje.",
+                    "Solo mediante políticas integradas (infraestructura, equipos, capacitación y comunidad) se logra sostenibilidad.",
+                    "La participación de los padres es el único factor determinante del éxito educativo.",
+                    "La fibra óptica es obsoleta comparada con las bibliotecas digitales."
+                ],
+                correct: 1,
+                sustento: "El artículo concluye que solo mediante políticas integradas se podrá cerrar la brecha de manera sostenible."
+            },
+            {
+                q: "¿Qué consecuencia social se infiere de implementar soluciones integrales en zonas rurales?",
+                options: [
+                    "Dependencia tecnológica excesiva de los jóvenes campesinos.",
+                    "Mayor equidad educativa y potenciación de la participación en la sociedad del conocimiento.",
+                    "Desplazamiento de los saberes ancestrales por conocimientos digitales.",
+                    "Aumento de la brecha entre padres analógicos e hijos digitales."
+                ],
+                correct: 1,
+                sustento: "Refleja una mayor equidad educativa y permite a los jóvenes participar activamente en la sociedad del conocimiento."
+            },
+            {
+                q: "Tras elevar la confianza docente un 30%, ¿qué ocurre en la práctica pedagógica?",
+                options: [
+                    "Los docentes exigen aumentos salariales inmediatos.",
+                    "Se incrementa la incorporación de actividades interactivas en las clases.",
+                    "Los alumnos dejan de asistir a clases presenciales.",
+                    "Se reduce el uso de plataformas de aprendizaje (LMS)."
+                ],
+                correct: 1,
+                sustento: "La mayor confianza docente reportada en el programa FOTED llevó a un incremento en la incorporación de actividades interactivas."
+            },
+            {
+                q: "¿Cuál enfoque muestra un impacto más inmediato en la participación digital estudiantil?",
+                options: [
+                    "La expansión de 1,200 km de fibra óptica (proyecto a 2025).",
+                    "Las bibliotecas digitales y proyectos de dispositivos compartidos.",
+                    "La capacitación docente teórica de la UMSA.",
+                    "La construcción de nuevas escuelas en Potosí."
+                ],
+                correct: 1,
+                sustento: "Casos como ConectaTi y 'Escuelas Conectadas' aumentaron el uso de recursos digitales rápidamente (hasta un 55%)."
+            },
+            {
+                q: "¿Qué perspectiva ambiental no ha sido considerada en el análisis del autor?",
+                options: [
+                    "El ahorro de papel gracias a los archivos PDF.",
+                    "Los efectos ecológicos de la infraestructura (alteración de hábitats, consumo energético).",
+                    "El uso de energía solar en los centros de conectividad rural.",
+                    "La reducción de huella de carbono por evitar viajes de estudiantes."
+                ],
+                correct: 1,
+                sustento: "El artículo no menciona ninguna evaluación de los efectos ecológicos de las intervenciones tecnológicas descritas."
+            },
+            {
+                q: "¿Qué perspectiva importante se omite en el análisis sobre inclusión?",
+                options: [
+                    "La brecha de género en el acceso a internet rural.",
+                    "La inclusión de estudiantes con discapacidades y adaptación de TIC.",
+                    "La enseñanza en idiomas originarios como quechua o aimara.",
+                    "El acceso de estudiantes universitarios fuera de la UMSA."
+                ],
+                correct: 1,
+                sustento: "El autor omite cualquier referencia a la accesibilidad universal o barreras específicas para alumnos con discapacidades."
+            },
+            {
+                q: "¿Es la evidencia estadística suficiente para afirmar que la conectividad es la causa única del bajo rendimiento?",
+                options: [
+                    "Sí, porque el aumento del 12% es una prueba científica irrefutable.",
+                    "No, los datos son correlacionales y no aíslan otras variables como la capacitación docente.",
+                    "Sí, el INE y el Banco Mundial garantizan la causalidad de los datos.",
+                    "No, porque el 33% de acceso rural es un dato demasiado bajo para ser analizado."
+                ],
+                correct: 1,
+                sustento: "Los datos son descriptivos y no presentan análisis multivariados que aíslen el efecto de la conectividad de otros factores."
+            },
+            {
+                q: "¿Cuáles son las principales implicaciones sociales de la disparidad de acceso (71% vs 33%)?",
+                options: [
+                    "Mejora de la competitividad urbana frente a la rural.",
+                    "Amenaza a la igualdad de oportunidades y perpetuación de desigualdades socio-económicas.",
+                    "Necesidad de aumentar el costo del internet en ciudades para subsidiar el campo.",
+                    "Aparición de nuevas tribus urbanas digitales en La Paz y Santa Cruz."
+                ],
+                correct: 1,
+                sustento: "Esta disparidad se traduce en una brecha de aprendizaje que amenaza la igualdad y perpetúa desigualdades históricas."
+            },
+            {
+                q: "¿Es válido el argumento del retorno económico inmediato por el ahorro en fibra y mejora en puntajes?",
+                options: [
+                    "Es válido porque el 15% de ahorro es significativo para el PIB boliviano.",
+                    "Es débil, pues carece de evidencia que respalde una relación causal con un retorno económico macro.",
+                    "Es válido solo para el departamento de Potosí por su gestión comunitaria.",
+                    "No es válido porque los puntajes académicos no tienen relación con la economía."
+                ],
+                correct: 1,
+                sustento: "El argumento es débil porque no se presenta un vínculo causal directo ni estudios de coste-beneficio que sustenten la afirmación económica."
+            },
+            {
+                q: "El argumento del autor sobre la expansión de fibra como solución es:",
+                options: [
+                    "Incorrecto, porque la fibra es demasiado cara para Bolivia.",
+                    "Válido, al evidenciar que se apoya en un enfoque integral combinado con radio enlace.",
+                    "Simplista, pues no considera el uso de satélites extranjeros.",
+                    "Incongruente con los datos proporcionados por la ATT."
+                ],
+                correct: 1,
+                sustento: "Se respalda su validez al mostrar que la estrategia no es aislada sino combinada según la necesidad geográfica (ej. radio enlace)."
+            },
+            {
+                q: "¿Qué visión futura ofrece el artículo frente a la visión simplista de 'solo tecnología'?",
+                options: [
+                    "Que la infraestructura es el 90% del éxito educativo.",
+                    "Un enfoque sistémico: infraestructura, formación docente y aprendizaje colaborativo.",
+                    "Que la educación presencial desaparecerá en Bolivia antes de 2030.",
+                    "Que el sector privado debe tomar el control total de la educación digital."
+                ],
+                correct: 1,
+                sustento: "El texto concluye pidiendo un enfoque sistémico que considere simultáneamente múltiples factores, no solo infraestructura."
+            },
+            {
+                q: "¿Cómo adaptar la estrategia de bibliotecas digitales a un contexto urbano de alta densidad?",
+                options: [
+                    "Donando una tablet individual a cada ciudadano para evitar aglomeraciones.",
+                    "Replicando la integración de los 4 pilares: infraestructura, equipos, capacitación y comunidad.",
+                    "Eliminando la capacitación docente por considerarse innecesaria en la ciudad.",
+                    "Cobrando una suscripción mensual para mantener los equipos de alta gama."
+                ],
+                correct: 1,
+                sustento: "La solución adecuada es replicar la integración sistémica, no limitarse a una sola intervención aislada."
+            },
+            {
+                q: "¿Qué implicación ética deben considerar los docentes?",
+                options: [
+                    "Deben evitar la capacitación para no ser reemplazados por máquinas.",
+                    "Deben capacitarse para no reproducir desigualdades pedagógicas en el aula digital.",
+                    "Deben priorizar a los alumnos que ya tienen dispositivos propios.",
+                    "Deben utilizar solo software gratuito para no favorecer al sector privado."
+                ],
+                correct: 1,
+                sustento: "Los docentes requieren capacitación (FOTED) para no reproducir desigualdades pedagógicas involuntariamente."
+            },
+            {
+                q: "¿Qué riesgo ético corre el sector privado en la implementación tecnológica?",
+                options: [
+                    "Ofrecer equipos demasiado modernos que confundan a los usuarios rurales.",
+                    "No proteger la privacidad de los datos o imponer condiciones injustas que profundicen la brecha.",
+                    "Vender fibra óptica de baja calidad que se rompa con la geografía andina.",
+                    "Capacitar a los padres de familia sin permiso del Ministerio de Educación."
+                ],
+                correct: 1,
+                sustento: "El sector privado debe proteger la privacidad y ofrecer condiciones justas para no profundizar las disparidades existentes."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 1800; // 30 minutes
+        let timerId;
+
+        function startQuiz() {
+            document.getElementById('intro-screen').classList.add('hidden');
+            document.getElementById('question-screen').classList.remove('hidden');
+            startTimer();
+            showQuestion();
+        }
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                
+                if (timeLeft <= 0) {
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-number').innerText = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+            document.getElementById('question-text').innerText = q.q;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-4 rounded-xl bg-white shadow-sm hover:shadow-md text-gray-700 font-medium flex gap-4 items-center border-2 border-transparent";
+                btn.innerHTML = `<span class="flex-none w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-sm">${String.fromCharCode(65 + index)}</span> <span>${opt}</span>`;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('feedback-area').classList.add('hidden');
+            updateProgressBar();
+        }
+
+        function checkAnswer(selectedIndex, btn) {
+            if (document.getElementById('feedback-area').classList.contains('hidden') === false) return;
+
+            const q = questions[currentQuestion];
+            const allBtns = document.querySelectorAll('.option-btn');
+            
+            allBtns.forEach(b => b.onclick = null); // Disable all buttons
+
+            if (selectedIndex === q.correct) {
+                score++;
+                btn.classList.add('correct');
+                showFeedback(true, q.sustento);
+            } else {
+                btn.classList.add('incorrect');
+                allBtns[q.correct].classList.add('correct');
+                showFeedback(false, q.sustento);
+            }
+        }
+
+        function showFeedback(isCorrect, text) {
+            const area = document.getElementById('feedback-area');
+            const title = document.getElementById('feedback-title');
+            const msg = document.getElementById('feedback-text');
+            
+            area.classList.remove('hidden');
+            if (isCorrect) {
+                area.className = "mt-8 p-5 rounded-xl bg-green-50 border border-green-200 block";
+                title.innerText = "¡Correcto!";
+                title.className = "font-bold mb-2 text-green-700";
+            } else {
+                area.className = "mt-8 p-5 rounded-xl bg-red-50 border border-red-200 block";
+                title.innerText = "Incorrecto";
+                title.className = "font-bold mb-2 text-red-700";
+            }
+            msg.innerText = text;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function updateProgressBar() {
+            const percent = (currentQuestion / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+        }
+
+        function endQuiz() {
+            clearInterval(timerId);
+            document.getElementById('question-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            document.getElementById('progress-bar').style.width = `100%`;
+
+            const finalPercent = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').innerText = `${score}/${questions.length}`;
+            document.getElementById('achievement-percent').innerText = `${finalPercent}% de Logro`;
+            
+            const rank = document.getElementById('performance-rank');
+            const msg = document.getElementById('performance-msg');
+
+            if (finalPercent >= 85) {
+                rank.innerText = "DESEMPEÑO ALTO";
+                rank.className = "text-xl mt-2 px-4 py-1 rounded-full inline-block font-bold bg-green-100 text-green-700";
+                msg.innerText = "¡Excelente nivel de comprensión! Dominas los conceptos académicos complejos.";
+            } else if (finalPercent >= 60) {
+                rank.innerText = "DESEMPEÑO MEDIO";
+                rank.className = "text-xl mt-2 px-4 py-1 rounded-full inline-block font-bold bg-yellow-100 text-yellow-700";
+                msg.innerText = "Buen desempeño. Tienes una base sólida, pero puedes mejorar el análisis de detalles específicos.";
+            } else {
+                rank.innerText = "DESEMPEÑO BAJO";
+                rank.className = "text-xl mt-2 px-4 py-1 rounded-full inline-block font-bold bg-red-100 text-red-700";
+                msg.innerText = "Necesitas reforzar tu lectura crítica. Vuelve a leer el texto y presta atención a los sustentos.";
+            }
+        }
+    </script>
+</body>
+</html>
