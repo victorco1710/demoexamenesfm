@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESOLUCIÓN DE PROBLEMAS MATEMÁTICOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- MathJax para fórmulas matemáticas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Degradado lineal suave verde menta/cian a blanco */
+            background: linear-gradient(180deg, #E0F2F1 0%, #FFFFFF 100%);
+            color: #263238; /* Azul petróleo profundo para contraste suave */
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-card:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #4FD1C5; /* Teal-400 */
+        }
+        .correct-answer {
+            background-color: #D1FAE5 !important; /* Green-100 */
+            border-color: #10B981 !important; /* Green-500 */
+            color: #064E3B !important;
+            font-weight: 600;
+        }
+        .incorrect-answer {
+            background-color: #FEE2E2 !important; /* Red-100 */
+            border-color: #EF4444 !important; /* Red-500 */
+            color: #7F1D1D !important;
+        }
+        .disabled-option {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Personalización de la barra de desplazamiento */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-teal-100 selection:text-teal-900">
+
+    <!-- Header Fijo -->
+    <header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-teal-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="land_pag.html" class="flex items-center gap-2 text-teal-700 hover:text-teal-900 font-semibold transition-colors px-3 py-2 rounded-lg hover:bg-teal-50 group">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
+                Volver
+            </a>
+            
+            <h1 class="text-lg md:text-xl font-bold text-teal-800 text-center hidden md:block tracking-tight">RESOLUCIÓN DE PROBLEMAS MATEMÁTICOS</h1>
+            
+            <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-teal-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-teal-500"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="timer" class="font-mono font-bold text-lg text-teal-700">60:00</span>
+            </div>
+        </div>
+        
+        <!-- Barra de Progreso -->
+        <div class="w-full h-1.5 bg-gray-100">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-teal-400 to-cyan-400 transition-all duration-500 ease-out" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="container mx-auto px-4 pt-28 pb-20 max-w-4xl min-h-screen flex flex-col">
+        
+        <!-- Contenedor del Juego -->
+        <div id="game-container" class="relative w-full">
+            <!-- Tarjeta de Pregunta -->
+            <div id="question-card" class="bg-white rounded-3xl shadow-xl p-6 md:p-10 mb-6 border border-teal-50 fade-in relative overflow-hidden">
+                <!-- Decoración superior -->
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-teal-300 via-cyan-300 to-blue-300"></div>
+                
+                <div class="flex justify-between items-center mb-8">
+                    <span class="inline-flex items-center bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider border border-teal-100">
+                        Pregunta <span id="current-q-num" class="mx-1">1</span> de <span id="total-q-num" class="ml-1">50</span>
+                    </span>
+                    <span id="score-display" class="text-sm font-semibold text-slate-400">Puntaje: 0</span>
+                </div>
+
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold text-slate-800 mb-10 leading-snug">
+                    <!-- Texto de la pregunta -->
+                </h2>
+
+                <!-- Cuadrícula de Opciones -->
+                <div id="options-container" class="grid grid-cols-1 gap-4 mb-8">
+                    <!-- Las opciones se inyectan aquí -->
+                </div>
+
+                <!-- Sección de Retroalimentación (Sustento) -->
+                <div id="feedback-section" class="hidden bg-cyan-50/50 border-l-4 border-cyan-500 p-6 rounded-r-xl mt-8 fade-in">
+                    <div class="flex items-start gap-4">
+                        <div class="bg-cyan-100 p-2 rounded-full mt-1 flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-700"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        </div>
+                        <div class="w-full">
+                            <h3 class="font-bold text-cyan-900 mb-2 text-sm uppercase tracking-wide">Sustento Académico</h3>
+                            <p id="feedback-text" class="text-slate-700 text-sm leading-relaxed text-justify font-medium"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="mt-10 flex justify-end">
+                    <button id="next-btn" class="hidden bg-teal-600 hover:bg-teal-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg hover:shadow-teal-200/50 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 group">
+                        Siguiente Pregunta
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </button>
+                    <button id="finish-btn" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg hover:shadow-indigo-200/50 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                        Ver Resultados Finales
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados (Oculta inicialmente) -->
+        <div id="results-screen" class="hidden w-full fade-in">
+            <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-teal-50 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-500"></div>
+                
+                <div class="mb-8 inline-flex p-5 rounded-full bg-teal-50 ring-8 ring-teal-50/50">
+                    <svg id="result-icon" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-teal-500"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                </div>
+                
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-2">¡Simulacro Completado!</h2>
+                <p id="performance-msg" class="text-xl text-teal-600 font-semibold mb-10">Desempeño Alto</p>
+
+                <div class="grid grid-cols-2 gap-6 mb-10">
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Puntaje Final</p>
+                        <p id="final-score" class="text-4xl font-bold text-slate-800">0/50</p>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Efectividad</p>
+                        <p id="final-percent" class="text-4xl font-bold text-slate-800">0%</p>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold py-4 px-12 rounded-full shadow-lg hover:shadow-teal-500/30 transition-all transform hover:-translate-y-1 w-full md:w-auto">
+                    Reiniciar Simulador
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="fixed bottom-0 w-full text-center py-4 bg-white/80 backdrop-blur-md border-t border-gray-100 text-xs z-40">
+        <p class="text-gray-400 font-medium">@victor 2026-SIMULADOR ACADÉMICO - RESOLUCIÓN DE PROBLEMAS MATEMÁTICOS</p>
+        <p class="text-teal-600 mt-1 font-semibold italic">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+    </footer>
+
+    <script>
+        // BASE DE DATOS DE PREGUNTAS (Extracción exacta del documento rp2.pdf)
+        // Las opciones incorrectas han sido generadas para crear un contexto de selección múltiple coherente
+        // ya que el documento original proporcionaba preguntas abiertas con sustento.
+        const questionsDB = [
+            {
+                id: 250,
+                question: "Dos válvulas llenan un tanque de agua a velocidad constante. La válvula A, sola, lo llena en 6 horas; la válvula B, sola, lo llena en 9 horas. Si ambas válvulas se abren al mismo tiempo, ¿cuánto tiempo tardarán en llenar el tanque?",
+                options: ["3 horas y 36 minutos", "3 horas y 30 minutos", "7 horas y 30 minutos", "4 horas"],
+                correct: 0,
+                sustento: "Para resolver el problema se deben calcular las tasas de llenado de cada válvula y sumarlas. La tasa de la válvula A es 1/6 del tanque por hora y la de la válvula B es 1/9 del tanque por hora. La tasa combinada es: [5/18] tanques por hora. El tiempo necesario para llenar un tanque completo es el inverso de esa tasa: [3.6] horas. 0.6 horas equivale a 0.6×60=36 minutos. Por lo tanto, el tanque se llena en 3 horas y 36 minutos."
+            },
+            {
+                id: 251,
+                question: "En una institución educativa, el jardín tiene tres patios: en el patio A hay 24 plantas, en el B 30 plantas y en el C 18 plantas. El jardinero riega 6 plantas por minuto en el patio A, 5 plantas por minuto en el B y 4 plantas por minuto en el C, trabajando los patios de forma secuencial comenzando por el A. ¿Cuánto tiempo, en minutos y segundos, le tomará regar todas las plantas?",
+                options: ["14 minutos", "14 minutos y 30 segundos", "15 minutos y 20 segundos", "12 minutos y 45 segundos"],
+                correct: 1,
+                sustento: "Primero se suman las plantas de los tres patios: 24+30+18=72 plantas. Luego se calcula el tiempo que tarda en regar cada patio según su velocidad: - Patio A: 24 plantas / 6 plantas/min = 4 minutos. - Patio B: 30 plantas / 5 plantas/min = 6 minutos. - Patio C: 18 plantas / 4 plantas/min = 4.5 minutos (4 minutos y 30 segundos). Sumando los tiempos: 4+6+4.5=14.5 minutos, que equivale a 14 minutos y 30 segundos."
+            },
+            {
+                id: 252,
+                question: "Una Unidad Educativa organizó una excursión y pagó $720 por el servicio de transporte. Cada autobús podía llevar a 48 estudiantes y el costo total se dividió equitativamente entre todos los estudiantes que asistieron. Si participaron 240 estudiantes, ¿cuánto debe pagar cada uno?",
+                options: ["$3", "$4", "$2.50", "$3.50"],
+                correct: 0,
+                sustento: "El costo total del transporte es de $720 y debe repartirse entre los 240 estudiantes que van a la excursión. Dividiendo el total entre el número de estudiantes obtenemos el valor que corresponde a cada estudiante: 720 ÷ 240 = 3. Por lo tanto, cada estudiante debe pagar $3."
+            },
+            {
+                id: 253,
+                question: "En una granja hay gallinas y conejos. En total hay 48 animales y 140 patas. ¿Cuántos conejos hay en la granja?",
+                options: ["20", "24", "22", "26"],
+                correct: 2,
+                sustento: "Sea c el número de gallinas y r el número de conejos. Cada animal tiene una cabeza, por lo que c+r=48 (1). Cada gallina tiene 2 patas y cada conejo 4, de modo que 2c+4r=140 (2). Dividiendo la ecuación (2) entre 2 se obtiene c+2r=70 (3). Restando (1) de (3): (c+2r)-(c+r)=70-48 lo que simplifica a r=22. Por lo tanto, hay 22 conejos en la granja."
+            },
+            {
+                id: 254,
+                question: "En una feria escolar se venden paquetes de lápices. Cada paquete contiene 12 lápices y cuesta Bs. 15. Un grupo de 5 maestros desea que cada uno cuente con al menos 48 lápices. ¿Cuál es el gasto total mínimo que deberán efectuar?",
+                options: ["Bs. 300", "Bs. 240", "Bs. 360", "Bs. 280"],
+                correct: 0,
+                sustento: "Cada paquete contiene 12 lápices. Para que un maestro tenga al menos 48 lápices necesita 48÷12=4 paquetes. Como son 5 maestros, el número total de paquetes es 5×4=20 paquetes. Cada paquete cuesta Bs. 15, por lo que el gasto total es 20×15=Bs. 300."
+            },
+            {
+                id: 255,
+                question: "Un estudiante desea comprar la cantidad de cerca necesaria para rodear un jardín rectangular cuya longitud es 8 metros y su ancho 5 metros. ¿Cuál de las siguientes afirmaciones describe correctamente el razonamiento para hallar la longitud total de la cerca?",
+                options: ["Sumar 8m más 5m solamente.", "Multiplicar 8m por 5m para obtener el área.", "Sumar 2 veces el largo (8m) y 2 veces el ancho (5m).", "Elevar al cuadrado la suma de los lados."],
+                correct: 2,
+                sustento: "Para rodear un rectángulo se necesita la longitud del perímetro, que se calcula sumando todos sus lados. Un rectángulo tiene dos lados iguales al largo y dos lados iguales al ancho; por lo tanto, el perímetro es 2(largo) + 2(ancho). Con los valores dados: 2•8 m = 16 m y 2•5 m = 10 m; al sumarlos se obtiene 16 m + 10 m = 26 m."
+            },
+            {
+                id: 256,
+                question: "En una clase de 30 estudiantes, 18 aprueban la asignatura de Matemática, 15 aprueban la asignatura de Ciencias Naturales y 5 aprueban ambas materias. Según estos datos, ¿cuántos estudiantes aprueban al menos una de las dos asignaturas?",
+                options: ["28", "33", "25", "30"],
+                correct: 0,
+                sustento: "Para determinar cuántos estudiantes aprueban al menos una de las dos asignaturas se utiliza el principio de inclusión-exclusión. Se suman los que aprueban cada asignatura y se resta la intersección que fue contada dos veces: 18 (Matemática) + 15 (Ciencias Naturales) - 5 (ambas) = 28. Por lo tanto, 28 estudiantes aprueban al menos una de las dos materias."
+            },
+            {
+                id: 257,
+                question: "En una biblioteca escolar hay 324 libros que deben colocarse en estanterías. Cada estantería debe contener el mismo número de libros y no puede alojar más de 30 libros. ¿Cuál de los siguientes números de estanterías permite cumplir con estas condiciones?",
+                options: ["10", "9", "12", "8"],
+                correct: 2,
+                sustento: "Para que todas las estanterías tengan la misma cantidad de libros y ninguna supere los 30, el número de libros por estantería debe ser un divisor entero de 324 y a la vez ≤ 30. El valor más pequeño que satisface la condición es n=12, pues 324÷12=27 libros por estantería, número que no supera los 30. Las demás opciones no son divisores exactos o no cumplen la condición."
+            },
+            {
+                id: 258,
+                question: "En una Unidad Educativa del Nivel de Educación Secundaria de la zona andina, cada aula tiene 26 estudiantes. El maestro planea organizar a los estudiantes en equipos de 4 integrantes para una actividad de matemática. ¿Cuál es la conclusión lógica correcta respecto al número de equipos completos que se pueden formar y la cantidad de estudiantes que quedarán sin equipo?",
+                options: ["6 equipos completos y quedan 2 estudiantes", "7 equipos completos", "6 equipos completos y no queda ninguno", "5 equipos completos y quedan 6 estudiantes"],
+                correct: 0,
+                sustento: "Para determinar cuántos equipos se pueden formar se divide la cantidad total de estudiantes (26) entre el número de integrantes por equipo (4). La división entera da 26÷4=6, lo que indica que se pueden crear 6 equipos completos (6×4=24 estudiantes). El residuo de la operación, 26-24=2, muestra que quedan 2 estudiantes que no pueden integrarse a un equipo de 4."
+            },
+            {
+                id: 259,
+                question: "En una clase hay 24 estudiantes. El maestro desea organizarlos en filas de igual número de estudiantes, de modo que todas las filas tengan la misma cantidad de estudiantes y no quede ninguno fuera. Si el número de filas posible es mayor que 3 y menor que 6, ¿cuántas filas debe formar?",
+                options: ["3", "4", "5", "6"],
+                correct: 1,
+                sustento: "Para organizar a los 24 estudiantes en filas iguales, el número de filas debe ser un divisor de 24. Los divisores de 24 son 1, 2, 3, 4, 6, 8, 12 y 24. El enunciado indica que la cantidad de filas debe ser mayor que 3 y menor que 6, por lo que solo los valores 4 cumplen esa condición. Con 4 filas, cada fila tendrá 24÷4=6 estudiantes."
+            },
+            {
+                id: 260,
+                question: "Un rectángulo tiene un perímetro de 68 cm y su longitud supera al ancho en 4 cm. ¿Cuál es el área del rectángulo (en cm²)?",
+                options: ["280 cm²", "300 cm²", "285 cm²", "260 cm²"],
+                correct: 2,
+                sustento: "Sea x el ancho del rectángulo. Entonces la longitud es x+4. El perímetro es 2•(x+x+4)=68 cm. Simplificando: 4x+8=68 → 4x=60 → x=15 cm. Por lo tanto, la longitud es 15+4=19 cm. El área se obtiene multiplicando base por altura: 15 cm × 19 cm = 285 cm²."
+            },
+            {
+                id: 261,
+                question: "Una biblioteca tiene 84 libros y desea distribuirlos en estanterías de forma que cada estantería contenga el mismo número de libros, sin que quede ninguno fuera y sin dejar una estantería vacía. ¿Cuál es el mayor número de libros que puede colocar en cada estantería?",
+                options: [ "28", "21", "84", "42" ],
+                correct: 3,
+                sustento: "Para que los 84 libros se repartan en estanterías con la misma cantidad y sin que sobre ninguno, el número de libros por estantería debe ser un divisor de 84. Se busca el divisor más grande que no sea el propio 84. El mayor divisor propio es 42. Por lo tanto, colocando 42 libros en cada estantería se utilizan exactamente dos estanterías."
+            },
+            {
+                id: 262,
+                question: "En una institución educativa se registró que 30 estudiantes practican fútbol, 20 practican baloncesto y 10 practican ambos deportes. ¿Cuál de las siguientes afirmaciones es necesariamente verdadera?",
+                options: ["Hay al menos 40 estudiantes que practican fútbol o baloncesto", "Hay exactamente 60 estudiantes", "Todos los estudiantes practican un deporte", "Hay 50 estudiantes en total"],
+                correct: 0,
+                sustento: "Los estudiantes que practican al menos uno de los dos deportes se calculan con la fórmula de unión de conjuntos: |FUB| = |F| + |B| - |FnB| = 30 + 20 - 10 = 40. Por lo tanto, el número de estudiantes que practican fútbol o baloncesto es, como mínimo, 40. La opción que dice 'Hay al menos 40 estudiantes que practican fútbol o baloncesto' es la única que se deriva lógicamente de los datos y es necesariamente verdadera."
+            },
+            {
+                id: 263,
+                question: "Un agricultor dispone de 48 metros de alambre para delimitar un jardín rectangular. ¿Qué dimensiones debe escoger para que el área del jardín sea máxima?",
+                options: ["16m x 8m", "12m x 12m", "14m x 10m", "20m x 4m"],
+                correct: 1,
+                sustento: "El perímetro del rectángulo está limitado a 48 m, por lo que 2(L+W)=48 → L+W=24. El área es A=L•W=L•(24-L). Esta función cuadrática alcanza su valor máximo en el vértice. El vértice se halla cuando L=12 m y W=12 m. Cuando el rectángulo es un cuadrado, el área es máxima."
+            },
+            {
+                id: 264,
+                question: "Una Unidad Educativa debe repartir 240 cuadernos de forma equitativa entre 8 aulas. ¿Qué operación matemática es la más adecuada para determinar cuántos cuadernos recibirá cada aula?",
+                options: ["Multiplicación", "Suma", "División", "Resta"],
+                correct: 2,
+                sustento: "Para distribuir un total de elementos de manera equitativa entre un número determinado de grupos, la operación correspondiente es la división. En este caso, se tiene un total de 240 cuadernos y 8 aulas; al dividir 240÷8 se obtiene 30, lo que indica que cada aula recibirá 30 cuadernos."
+            },
+            {
+                id: 265,
+                question: "Un agricultor cuenta con 48 metros de alambre para delimitar un terreno rectangular. ¿Cuál de las siguientes dimensiones permite obtener la mayor superficie posible para el terreno?",
+                options: ["8 m x 16 m", "10 m x 14 m", "6 m x 18 m", "12 m x 12 m"],
+                correct: 3,
+                sustento: "Para un rectángulo con perímetro fijo, la superficie máxima se logra cuando el rectángulo es un cuadrado. El perímetro disponible es 48 m, por lo que cada lado del cuadrado debe medir 48 m ÷ 4 = 12 m. Así, el área máxima es 12 m × 12 m = 144 m²."
+            },
+            {
+                id: 266,
+                question: "En una institución educativa se organizaron grupos de estudiantes para recolectar agua de lluvia. Cada grupo está formado por 5 estudiantes y cada uno coloca una cubeta que recoge 12 litros por hora. Si la institución educativa necesita obtener al menos 360 litros de agua en un período de 3 horas, ¿cuántos grupos deben formarse como minimo?",
+                options: ["5 grupos", "8 grupos", "10 grupos", "12 grupos"],
+                correct: 2,
+                sustento: "Cada grupo recoge 12 litros por hora. En 3 horas, un grupo aporta 12 L × 3 h = 36 litros. Para alcanzar al menos 360 litros, se necesita dividir la cantidad requerida entre la aportación de un grupo: 360 L ÷ 36 L/grupo = 10 grupos."
+            },
+            {
+                id: 267,
+                question: "Una Unidad Educativa organizará una visita a un museo para 274 estudiantes. Cada autobús disponible tiene capacidad para 48 estudiantes. ¿Cuál es el número mínimo de autobuses que la Unidad Educativa debe contratar para que todos los estudiantes viajen juntos?",
+                options: ["5 autobuses", "6 autobuses", "7 autobuses", "4 autobuses"],
+                correct: 1,
+                sustento: "Para determinar el número mínimo de autobuses, se divide el total de estudiantes entre la capacidad de cada autobús: 274 ÷ 48 = 5,7083... La parte entera indica que 5 autobuses llenan 240 estudiantes, dejando 34 sin transporte. Se debe redondear hacia arriba. Por lo tanto, se requieren 5+1=6 autobuses."
+            },
+            {
+                id: 268,
+                question: "En un jardín se plantan flores de tres colores: rojas, blancas y amarillas. El número de flores rojas es el doble del número de flores blancas. El número de flores amarillas es 5 unidades menos que la suma de flores rojas y blancas. Si en total hay 31 flores, ¿cuántas flores blancas se plantaron?",
+                options: ["4", "5", "6", "7"],
+                correct: 2,
+                sustento: "Sea w el número de flores blancas. Entonces, las flores rojas son 2w y las flores amarillas son (2w+w)-5=3w-5. El total de flores es w+2w+(3w-5)=6w-5. Según el enunciado, 6w-5=31. Resolviendo la ecuación: 6w=36 → w=6. Por lo tanto, se plantaron 6 flores blancas."
+            },
+            {
+                id: 269,
+                question: "En la biblioteca de un colegio se deben colocar 120 libros nuevos en estanterías. Cada estantería tiene capacidad para 4 libros exactamente. ¿Cuántas estanterías serán necesarias para acomodar todos los libros?",
+                options: ["25", "20", "30", "35"],
+                correct: 2,
+                sustento: "Para determinar cuántas estanterías se requieren, basta dividir el número total de libros entre la capacidad de cada estantería. La operación adecuada es 120÷4=30. Por lo tanto, se necesitan 30 estanterías."
+            },
+            {
+                id: 270,
+                question: "Una maestra tiene 48 lápices y desea agruparlos en paquetes idénticos de modo que no sobre ningún lápiz y que cada paquete contenga la mayor cantidad posible de lápices. ¿Cuántos lápices habrá en cada paquete?",
+                options: ["6", "12", "8", "16"],
+                correct: 1,
+                sustento: "Para que los paquetes tengan la mayor cantidad posible de lápices sin que sobre ninguno, se debe buscar el divisor más grande de 48 que permita formar paquetes idénticos (más de 1 paquete). El divisor mayor que permite más de un paquete es 12. Con 12 lápices por paquete se obtienen 48÷12=4 paquetes."
+            },
+            {
+                id: 271,
+                question: "En la feria de Ciencias Naturales de la institución educativa se establecieron las siguientes condiciones: 1) Si un proyecto utiliza energía solar, entonces recibe una bonificación de 5 puntos. 2) El proyecto de Carlos no recibió ninguna bonificación. 3) El proyecto de Carlos utilizó energía solar. ¿Cuál de las siguientes afirmaciones es necesariamente verdadera?",
+                options: ["Carlos reprobó el proyecto", "El proyecto de Carlos recibió la bonificación de 5 puntos", "Carlos no usó energía solar", "Ninguna es correcta"],
+                correct: 1,
+                sustento: "La premisa 1 indica que todo proyecto que usa energía solar obtiene una bonificación de 5 puntos. Según la premisa 3, el proyecto de Carlos utilizó energía solar, por lo tanto, por la lógica del enunciado, Carlos debe haber recibido la bonificación de 5 puntos. (Nota: Esto expone una contradicción en las premisas dadas en el texto original, pero la deducción lógica de 1 y 3 es la bonificación)."
+            },
+            {
+                id: 272,
+                question: "Un agricultor desea cercar un terreno rectangular cuya cerca tiene una longitud total de 60 metros. Para que el área cultivada sea la mayor posible, ¿qué dimensiones debe elegir para el rectángulo?",
+                options: ["20 m x 10 m", "15 m x 15 m", "18 m x 12 m", "25 m x 5 m"],
+                correct: 1,
+                sustento: "El perímetro del rectángulo está dado por 2(largo+ancho)=60 m, por lo que largo + ancho = 30 m. El área A se expresa como A = largo × ancho. Esta es una función cuadrática que alcanza su valor máximo en el vértice. El cálculo muestra que largo = ancho = 15 metros, es decir, un cuadrado de 15 m de lado brinda el área máxima posible."
+            },
+            {
+                id: 273,
+                question: "Un agricultor dispone de 120 metros de alambre para cercar un jardín rectangular. Desea que el área del jardín sea la mayor posible. ¿Cuál de los siguientes procedimientos es el más apropiado para determinar las dimensiones que maximicen el área?",
+                options: ["Hacer el largo el doble del ancho", "Dividir el alambre en partes desiguales", "Formar un cuadrado (Largo = Ancho)", "Usar todo el alambre en una línea recta"],
+                correct: 2,
+                sustento: "Para maximizar el área de un rectángulo con perímetro fijo, se determina que el área es máxima cuando L=W, es decir, cuando el rectángulo es un cuadrado. En este caso L=W=30 metros."
+            },
+            {
+                id: 274,
+                question: "En la Unidad Educativa se organizará una competencia de relevos donde cada equipo está formado por 5 corredores. Si 84 estudiantes se anotan para participar, ¿cuántos equipos completos pueden formarse sin dejar a ningún estudiante sin equipo?",
+                options: ["17", "15", "16", "18"],
+                correct: 2,
+                sustento: "Para determinar cuántos equipos completos se pueden formar, se divide el número total de estudiantes entre la cantidad de corredores que necesita cada equipo. La operación es 84÷5=16.8. Como solo se pueden formar equipos completos, se toma la parte entera del cociente, que es 16."
+            },
+            {
+                id: 275,
+                question: "En la institución educativa se desea construir un huerto rectangular cuya superficie mide 8 metros de ancho por 12 metros de largo. Para que el huerto quede formado por parcelas cuadradas idénticas y sin que sobre espacio, ¿cuál debe ser la longitud del lado de cada parcela?",
+                options: ["2 metros", "3 metros", "4 metros", "6 metros"],
+                correct: 2,
+                sustento: "Para que el rectángulo de 8 m × 12 m se divida en cuadrados idénticos sin dejar sobrante, el lado del cuadrado debe ser un divisor común a ambas dimensiones. Se busca el mayor divisor común (MCD) de 8 y 12. El mayor número que aparece en ambas listas es 4. Por lo tanto, el lado de cada parcela cuadrada debe medir 4 metros."
+            },
+            {
+                id: 276,
+                question: "Una organización benéfica prepara una cena para 54 personas y cada mesa tiene capacidad para 8 comensales. ¿Cuál es el número mínimo de mesas que deben disponer para que todos los invitados tengan asiento?",
+                options: ["6 mesas", "7 mesas", "8 mesas", "5 mesas"],
+                correct: 1,
+                sustento: "Para cubrir a los 54 invitados se debe dividir el número total de personas entre la capacidad de cada mesa: 54 ÷ 8 = 6,75. Como no se pueden usar fracciones de mesa, se redondea al entero superior, obteniendo 7 mesas."
+            },
+            {
+                id: 277,
+                question: "En una clase de geometría básica, el maestro quiere que sus estudiantes determinen cuántas baldosas de 30 cm × 30 cm son necesarias para cubrir completamente un patio rectangular de 6 m de largo por 4,5 m de ancho, sin que quede espacio vacío ni sobreposición. ¿Cuál es el procedimiento más adecuado para obtener la cantidad requerida?",
+                options: ["Sumar los perímetros de las baldosas", "Dividir el área del patio entre el área de una baldosa", "Multiplicar largo por ancho de la baldosa solamente", "Restar el área de la baldosa al área del patio"],
+                correct: 1,
+                sustento: "Para resolver el problema se debe trabajar con unidades coherentes. Primero, se calcula el área del patio: 27 m². Luego, el área de una baldosa: 0,09 m². La cantidad de baldosas requeridas se obtiene dividiendo el área del patio entre el área de una baldosa: 27 m² ÷ 0,09 m² = 300 baldosas."
+            },
+            {
+                id: 278,
+                question: "En una Unidad Educativa se organizó un concurso de elaboración de pulseras con cuentas de colores. Cada pulsera debe contener exactamente 12 cuentas y se pueden usar 3 colores (rojo, verde y azul) en cualquier orden, pero se requiere que haya al menos una cuenta de cada color. ¿Cuántas pulseras diferentes se pueden formar si se consideran distintas las disposiciones de colores?",
+                options: ["531 441", "519 156", "12 288", "525 000"],
+                correct: 1,
+                sustento: "Para contar las pulseras se consideran todas las secuencias posibles de 12 posiciones... Aplicando el principio de inclusión-exclusión: Resultado: 3^12 - 3•2^12 + 3•1^12 = 531441 - 12288 + 3 = 519 156. Así, la cantidad de pulseras distintas que cumplen la condición es 519 156."
+            },
+            {
+                id: 279,
+                question: "En una clase de 27 estudiantes la maestra quiere organizar grupos de 4 estudiantes para una actividad. ¿Cuál es el número máximo de grupos completos que puede formar?",
+                options: ["5", "6", "7", "8"],
+                correct: 1,
+                sustento: "Para determinar cuántos grupos completos de 4 estudiantes se pueden formar con 27 estudiantes, se debe aplicar la división entera: 27÷4=6 con resto 3. El cociente (6) indica el número máximo de grupos completos que pueden formarse."
+            },
+            {
+                id: 280,
+                question: "En una clase de 30 estudiantes, el maestro registra las siguientes calificaciones: 5 estudiantes obtuvieron 90 puntos, 10 estudiantes obtuvieron 70 puntos, 8 estudiantes obtuvieron 50 puntos y el resto de los estudiantes (7) obtuvo 30 puntos. El maestro afirma que la suma total de todas las notas es 2100 puntos. ¿Cuál de las siguientes afirmaciones es correcta respecto a la coherencia de los datos?",
+                options: ["La afirmación es correcta", "La suma total es 1760 puntos, la afirmación es incorrecta", "La suma total es mayor a 2100", "Faltan datos para calcular"],
+                correct: 1,
+                sustento: "Para verificar la coherencia se deben sumar las notas según la distribución dada. 5×90=450; 10×70=700; 8×50=400; 7×30=210. Sumando todos los valores: 450+700+400+210=1760 puntos. La afirmación es incorrecta."
+            },
+            {
+                id: 281,
+                question: "En una clase de matemática, el maestro suma las notas de cinco estudiantes: 78, 85, 92, 67 y 88, y anuncia que el total es 415. Después divide ese total entre 5 y dice que el promedio es 83. ¿Cuál de las siguientes afirmaciones es correcta respecto a la coherencia de los cálculos?",
+                options: ["La suma y el promedio anunciados son correctos", "La suma real es 410 y el promedio 82", "El promedio debería ser 85", "La suma es 415 pero el promedio es incorrecto"],
+                correct: 1,
+                sustento: "Para verificar la coherencia, primero se recalcula la suma real de las notas: 78+85+92+67+88=410. El promedio se obtiene dividiendo la suma entre el número de estudiantes: 410÷5=82. La afirmación del maestro es incoherente."
+            },
+            {
+                id: 282,
+                question: "Una institución educativa registra las notas obtenidas por tres estudiantes en un examen: Gloria sacó 78, Luis 84 y Carla 92. El director publica que el promedio de la nota del examen es 84. ¿Cuál de las siguientes afirmaciones es correcta respecto a la coherencia de ese promedio?",
+                options: ["El promedio es exacto", "El promedio es 85", "El promedio real es 84,66... por lo que 84 es inexacto", "El promedio es menor a 84"],
+                correct: 2,
+                sustento: "Para comprobar la coherencia del promedio, se calcula el promedio real de las tres notas: (78+84+92)/3 = 254/3 = 84,666..., que al redondear a la unidad más cercana da 85. El valor publicado de 84 no coincide con el promedio exacto."
+            },
+            {
+                id: 283,
+                question: "En una clase de 30 estudiantes se registró la cantidad de libros leídos durante el mes de abril. La suma total de libros leídos es 126. El maestro indica que el promedio de libros leídos por estudiante es 4,2. ¿Cuál de las siguientes aseveraciones es la más coherente con este resultado?",
+                options: ["El cálculo es correcto", "El promedio es 4", "El promedio debería ser 5", "El cálculo es incorrecto"],
+                correct: 0,
+                sustento: "Para verificar la coherencia del promedio, primero se calcula: promedio = suma total / número de observaciones = 126 ÷ 30 = 4,2. La aseveración es coherente."
+            },
+            {
+                id: 284,
+                question: "Una Unidad Educativa compra cuadernos. El director indica que se adquirieron 12 paquetes de 20 cuadernos cada uno y 5 paquetes de 15 cuadernos cada uno. Cada cuaderno tiene un costo de 0,80 USD. ¿Cuál de los siguientes valores representa correctamente el gasto total?",
+                options: ["$252 USD", "$315 USD", "$240 USD", "$159.20 USD"],
+                correct: 0,
+                sustento: "Primero se calcula la cantidad total de cuadernos: 12×20 = 240 y 5×15 = 75, total = 315 cuadernos. Cada cuaderno cuesta 0,80 USD, por lo que el gasto total es 315 × 0,80 = 252 USD."
+            },
+            {
+                id: 285,
+                question: "Una institución educativa dispone de 120 cuadernos y desea repartirlos en partes iguales entre sus 8 clases. Un estudiante indica diferentes cantidades de cuadernos por clase. ¿Cuál de las siguientes opciones representa un resultado coherente con la información dada?",
+                options: ["Cada clase recibe 12 cuadernos", "Cada clase recibe 15 cuadernos", "Cada clase recibe 20 cuadernos", "Cada clase recibe 10 cuadernos"],
+                correct: 1,
+                sustento: "Para que la distribución sea coherente, el número de cuadernos por clase multiplicado por la cantidad de clases debe dar el total disponible: 8 × x = 120. Resolviendo, x = 120÷8 = 15. Por lo tanto, cada clase recibe 15 cuadernos."
+            },
+            {
+                id: 286,
+                question: "En una fábrica se producen tres tipos de componentes: X, Y y Z. En un día se fabrican 1 200 unidades en total. X requiere 2h, Y requiere 3h, Z requiere 5h. Total horas 4500. Y es el 25% del total. ¿Cuántas unidades de Z se produjeron?",
+                options: ["300", "500", "600", "400"],
+                correct: 2,
+                sustento: "Y = 0.25•1200 = 300. Sistema: x+z=900; 2x+5z=3600. Resolviendo: x=900-z → 2(900-z)+5z=3600 → 1800+3z=3600 → 3z=1800 → z=600. Se produjeron 600 unidades de Z."
+            },
+            {
+                id: 287,
+                question: "En una competencia de lanzamiento de pelota, los participantes A, B y C obtuvieron respectivamente 48, 56 y 64 puntos. El organizador asegura que la suma total de los puntos es 168. ¿Cuál de las siguientes afirmaciones es correcta?",
+                options: ["La suma es correcta", "La suma es 158", "La suma es 178", "Es imposible saberlo"],
+                correct: 0,
+                sustento: "Para verificar la coherencia del enunciado del organizador, debemos sumar los puntos obtenidos por cada participante: 48+56=104; 104+64=168. La afirmación es correcta."
+            },
+            {
+                id: 288,
+                question: "En una jornada escolar se entregaron cuadernos. Cada maestro llevó 3 y cada estudiante 1. Total cuadernos: 200. Total personas: 150. ¿Cuántos maestros participaron?",
+                options: ["20", "25", "30", "35"],
+                correct: 1,
+                sustento: "Sea D maestros y E estudiantes. 3D+E=200 y D+E=150. E=150-D. Sustituyendo: 3D+(150-D)=200 → 2D=50 → D=25. Participaron 25 maestros."
+            },
+            {
+                id: 289,
+                question: "En una institución educativa se organizan tres jornadas de clases. La primera de 4 horas, la segunda de 5 horas y la tercera de 3 horas. Si se convierten todas las duraciones a minutos y se suman, ¿cuál es el total?",
+                options: ["600 minutos", "720 minutos", "800 minutos", "680 minutos"],
+                correct: 1,
+                sustento: "Primera jornada: 4h×60=240 min. Segunda: 5h×60=300 min. Tercera: 3h×60=180 min. Suma: 240+300+180=720 minutos."
+            },
+            {
+                id: 290,
+                question: "Una constructora edifica una pared de 7,30m x 2,40m. Bloques de 20cm x 10cm visibles. Paquetes de 50 a $2.40 c/u (bloque). Descuento 10% si >= 4 paquetes. ¿Cuál es el costo total tras descuento para la mínima cantidad de paquetes?",
+                options: ["$ 2 160,00", "$ 1 944,00", "$ 1 800,00", "$ 2 000,00"],
+                correct: 1,
+                sustento: "Área pared: 175,200 cm². Área bloque: 200 cm². Bloques necesarios: 876. Paquetes: ceil(876/50)=18. Bloques comprados: 900. Costo lista: 900×2.40 = 2160. Descuento 10%: 216. Total: 1944 dólares."
+            },
+            {
+                id: 291,
+                question: "En una cooperativa de 50 proveedores (X, Y, Z). X es el 40%. Y es 10 unidades menor que Z. Z tiene el doble de miembros que Y. ¿Cuántos proveedores pertenecen al grupo Y?",
+                options: ["5", "10", "15", "20"],
+                correct: 1,
+                sustento: "X = 0.40×50=20. Quedan 30 para Y+Z. Y=Z-10. Z=2Y. Sustituyendo: Y=2Y-10 → Y=10. Comprobación: Z=20. Y+Z=30. Correcto. Hay 10 proveedores en Y."
+            },
+            {
+                id: 292,
+                question: "Una Unidad Educativa transporta 274 estudiantes y 23 maestros. Autobús cap: 48. Cada autobús debe llevar al menos un maestro. ¿Cuál es el número mínimo de autobuses?",
+                options: ["6", "7", "8", "5"],
+                correct: 1,
+                sustento: "Total personas: 274 + 23 = 297. Capacidad necesaria: 297 ÷ 48 = 6.18... Redondeando al alza: 7 autobuses. Como hay 23 maestros, se puede poner al menos uno en cada uno de los 7 buses."
+            },
+            {
+                id: 293,
+                question: "Se sabe que la suma de dos números es 25 y que su producto es 144. ¿Cuál de las siguientes afirmaciones es coherente con esos datos?",
+                options: ["Los números son 12 y 13", "Los números son 9 y 16", "Los números son 10 y 15", "Los números son 20 y 5"],
+                correct: 1,
+                sustento: "Para que una afirmación sea coherente debe cumplir simultáneamente ambas condiciones dadas: suma = 25 y producto = 144. Los números son 9 y 16 mantiene la coherencia (9+16=25, 9×16=144)."
+            },
+            {
+                id: 294,
+                question: "Clase A (4 alumnos): 78, 85, 92, 88. Clase B (4 alumnos): 81, 79, 84, 90. Promedio A: 85,5. Promedio B: 83,5. ¿Cuál es el promedio total de los ocho estudiantes?",
+                options: ["84,0", "84,5", "85,0", "83,5"],
+                correct: 1,
+                sustento: "Promedio A (85,5) viene de suma 343. Promedio B (83,5) viene de suma 334. Suma total = 677. Promedio total = 677 ÷ 8 = 84,625. Redondeado a una cifra decimal es 84,5."
+            },
+            {
+                id: 295,
+                question: "Informe anual: 4.º año: 122, 5.º año: 138, 6.º año: 149. Total indicado: 410. ¿Es coherente?",
+                options: ["Sí, es coherente", "No, la suma real es 409", "No, la suma real es 411", "No se puede determinar"],
+                correct: 1,
+                sustento: "La suma de los estudiantes es 122 + 138 + 149 = 409. El informe indica que el total es 410, lo que difiere en una unidad. No es coherente."
+            },
+            {
+                id: 296,
+                question: "Excursión: 12 paquetes de agua (6 botellas c/u) y 8 paquetes de jugo (9 botellas c/u). ¿Cuál es el total de botellas?",
+                options: ["140", "144", "150", "132"],
+                correct: 1,
+                sustento: "Agua: 12 × 6 = 72. Jugo: 8 × 9 = 72. Total: 72 + 72 = 144 botellas."
+            },
+            {
+                id: 297,
+                question: "En una granja hay vacas y gallinas. Total 30 animales. Total patas 74. ¿Cuántas vacas hay?",
+                options: ["5", "7", "8", "10"],
+                correct: 1,
+                sustento: "V + G = 30; 4V + 2G = 74. G = 30 - V. Sustituyendo: 4V + 2(30 - V) = 74 → 2V = 14 → V = 7. Hay 7 vacas."
+            },
+            {
+                id: 298,
+                question: "Datos: 1) Estudiantes de concurso mate van a robótica. 2) Ninguno de fútbol va a concurso mate. 3) María está en fútbol. ¿Qué se deduce?",
+                options: ["María va a robótica", "María no participa en el concurso de matemática", "María participa en matemática", "María no va a robótica"],
+                correct: 1,
+                sustento: "Del enunciado 2 se afirma que los integrantes del equipo de fútbol no forman parte del concurso de matemática. Como María es integrante del equipo de fútbol, se concluye que ella no puede estar en el concurso de matemática."
+            },
+            {
+                id: 299,
+                question: "6 estudiantes ordenan archivo en 8 horas. Si aumentan a 12 estudiantes (mismo ritmo), ¿cuántas horas tardarán?",
+                options: ["16 horas", "4 horas", "6 horas", "2 horas"],
+                correct: 1,
+                sustento: "Proporcionalidad inversa. 6 est × 8 h = 48 horas-hombre. Con 12 estudiantes: 48 ÷ 12 = 4 horas."
+            },
+            {
+                id: 300,
+                question: "Un número natural aumentado en su triple da 56. ¿Cuál es el número?",
+                options: ["12", "14", "16", "18"],
+                correct: 1,
+                sustento: "x + 3x = 56 → 4x = 56 → x = 14."
+            }
+        ];
+
+        // --- Lógica del Simulador ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerInterval;
+        let timeLeft = 3600; // 60 minutos
+
+        // Elementos del DOM
+        const timerEl = document.getElementById('timer');
+        const progressBarEl = document.getElementById('progress-bar');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackSection = document.getElementById('feedback-section');
+        const feedbackText = document.getElementById('feedback-text');
+        const currentQNumEl = document.getElementById('current-q-num');
+        const totalQNumEl = document.getElementById('total-q-num');
+        const scoreDisplay = document.getElementById('score-display');
+        const nextBtn = document.getElementById('next-btn');
+        const finishBtn = document.getElementById('finish-btn');
+        const gameContainer = document.getElementById('game-container');
+        const resultsScreen = document.getElementById('results-screen');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalPercentEl = document.getElementById('final-percent');
+        const performanceMsg = document.getElementById('performance-msg');
+
+        function initGame() {
+            totalQNumEl.textContent = questionsDB.length;
+            startTimer();
+            loadQuestion(currentQuestionIndex);
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishGame();
+                    return;
+                }
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if(timeLeft < 300) timerEl.classList.add('text-red-500');
+            }, 1000);
+        }
+
+        function loadQuestion(index) {
+            const q = questionsDB[index];
+            currentQNumEl.textContent = index + 1;
+            
+            // Actualizar Barra de Progreso
+            const progress = ((index) / questionsDB.length) * 100;
+            progressBarEl.style.width = `${progress}%`;
+
+            // Resetear UI
+            feedbackSection.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            finishBtn.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+            
+            // Establecer Pregunta
+            questionTextEl.textContent = q.question;
+
+            // Generar Opciones
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-card w-full text-left p-5 rounded-2xl border-2 border-slate-100 bg-white hover:bg-teal-50 text-slate-700 font-medium transition-all duration-200 text-base md:text-lg';
+                btn.textContent = opt;
+                btn.onclick = () => handleAnswer(i, q);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Renderizar MathJax si es necesario
+            if(window.MathJax) MathJax.typeset();
+        }
+
+        function handleAnswer(selectedIndex, questionObj) {
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('disabled-option');
+            });
+
+            const isCorrect = selectedIndex === questionObj.correct;
+            
+            if (isCorrect) {
+                buttons[selectedIndex].classList.add('correct-answer');
+                score++;
+                scoreDisplay.textContent = `Puntaje: ${score}`;
+            } else {
+                buttons[selectedIndex].classList.add('incorrect-answer');
+                buttons[questionObj.correct].classList.add('correct-answer');
+            }
+
+            // Mostrar Sustento
+            feedbackText.textContent = questionObj.sustento;
+            feedbackSection.classList.remove('hidden');
+
+            // Mostrar Navegación
+            if (currentQuestionIndex < questionsDB.length - 1) {
+                nextBtn.classList.remove('hidden');
+            } else {
+                finishBtn.classList.remove('hidden');
+            }
+        }
+
+        nextBtn.onclick = () => {
+            currentQuestionIndex++;
+            loadQuestion(currentQuestionIndex);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        finishBtn.onclick = finishGame;
+
+        function finishGame() {
+            clearInterval(timerInterval);
+            progressBarEl.style.width = '100%';
+            
+            gameContainer.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+
+            const percent = Math.round((score / questionsDB.length) * 100);
+            finalScoreEl.textContent = `${score}/${questionsDB.length}`;
+            finalPercentEl.textContent = `${percent}%`;
+
+            let msg = "";
+            let colorClass = "";
+            if (percent >= 80) {
+                msg = "¡Desempeño Alto! Excelente dominio del tema.";
+                colorClass = "text-teal-600";
+            } else if (percent >= 50) {
+                msg = "Desempeño Medio. Buen trabajo, pero sigue practicando.";
+                colorClass = "text-yellow-600";
+                document.getElementById('result-icon').classList.replace('text-teal-500', 'text-yellow-500');
+            } else {
+                msg = "Desempeño Bajo. Necesitas reforzar los conceptos.";
+                colorClass = "text-red-600";
+                document.getElementById('result-icon').classList.replace('text-teal-500', 'text-red-500');
+            }
+            performanceMsg.textContent = msg;
+            performanceMsg.className = `text-xl md:text-2xl font-bold mb-10 ${colorClass}`;
+        }
+
+        // Iniciar
+        initGame();
+
+    </script>
+</body>
+</html>

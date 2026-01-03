@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONOCIMIENTOS GENERALES - TÉCNICA TECNOLÓGICA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%);
+            color: #1a365d; /* Azul petróleo profundo */
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover {
+            transform: translateY(-2px);
+            border-color: #4fd1c5;
+            background-color: #f0fff4;
+        }
+        .correct {
+            background-color: #c6f6d5 !important;
+            border-color: #38a169 !important;
+            color: #22543d !important;
+        }
+        .incorrect {
+            background-color: #fed7d7 !important;
+            border-color: #e53e3e !important;
+            color: #742a2a !important;
+        }
+        .progress-bar {
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header / Nav -->
+    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
+        <a href="land_pag.html" class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm font-semibold hover:bg-gray-50 flex items-center transition-all">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver
+        </a>
+        <div id="timer" class="text-xl font-mono font-bold bg-white px-4 py-2 rounded-lg shadow-sm border border-teal-100">
+            30:00
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">CONOCIMIENTOS GENERALES - TÉCNICA TECNOLÓGICA</h1>
+            <p class="text-gray-600 italic text-sm">Prueba Académica de Educación Superior</p>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="mb-8 bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+            <div id="progressBar" class="progress-bar bg-teal-500 h-full w-0"></div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="glass-card p-6 md:p-10">
+            <div id="questionArea">
+                <div class="flex justify-between items-center mb-6">
+                    <span id="questionCount" class="text-xs font-bold uppercase tracking-widest text-teal-600">Pregunta 1 de 20</span>
+                </div>
+                <h2 id="questionText" class="text-xl md:text-2xl font-bold mb-8 leading-tight text-gray-800">Cargando pregunta...</h2>
+                <div id="optionsGrid" class="grid grid-cols-1 gap-4 mb-8">
+                    <!-- Options injected here -->
+                </div>
+                <div id="feedback" class="hidden p-4 rounded-lg mb-6 border-l-4">
+                    <p id="feedbackTitle" class="font-bold mb-1"></p>
+                    <p id="feedbackText" class="text-sm leading-relaxed"></p>
+                </div>
+                <button id="nextBtn" class="hidden w-full bg-teal-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-teal-700 transition-colors shadow-lg">
+                    Siguiente Pregunta
+                </button>
+            </div>
+
+            <!-- Results Area -->
+            <div id="resultsArea" class="hidden text-center py-10">
+                <h2 class="text-4xl font-bold mb-4">¡Simulacro Finalizado!</h2>
+                <div class="flex justify-center space-x-8 my-8">
+                    <div>
+                        <p class="text-gray-500 text-sm uppercase">Puntaje</p>
+                        <p id="finalScore" class="text-5xl font-extrabold text-teal-600">0/20</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm uppercase">Efectividad</p>
+                        <p id="finalPercent" class="text-5xl font-extrabold text-teal-600">0%</p>
+                    </div>
+                </div>
+                <div id="performanceBadge" class="inline-block px-6 py-2 rounded-full text-white font-bold text-xl mb-6 shadow-md">
+                    Desempeño Medio
+                </div>
+                <p id="performanceMsg" class="text-lg text-gray-700 mb-10 italic"></p>
+                <button onclick="location.reload()" class="bg-gray-800 text-white px-10 py-4 rounded-xl font-bold hover:bg-gray-900 transition-all">
+                    Reiniciar Simulador
+                </button>
+            </div>
+        </div>
+
+        <footer class="mt-12 text-center text-gray-500 text-xs pb-10">
+            <p class="mb-2 font-semibold">@victor 2026 - SIMULADOR ACADÉMICO DE CONOCIMIENTOS GENERALES - TÉCNICA TECNOLÓGICA</p>
+            <p>"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </main>
+
+    <script>
+        const questions = [
+            {
+                q: "1. ¿Qué representa el hardware dentro de un sistema informático?",
+                options: [
+                    "Los programas y aplicaciones instalados en el equipo.",
+                    "Los componentes físicos y tangibles que integran el sistema.",
+                    "La conexión inalámbrica a internet y redes locales.",
+                    "El conjunto de instrucciones digitales para el procesador."
+                ],
+                correct: 1,
+                sustento: "El hardware comprende todos los componentes físicos y tangibles que integran un sistema informático, tales como el teclado, el monitor, la unidad central de procesamiento (CPU), la memoria y los dispositivos de almacenamiento."
+            },
+            {
+                q: "2. ¿Cómo se define el software de una computadora?",
+                options: [
+                    "Como los periféricos de entrada y salida de datos.",
+                    "Como el soporte técnico físico de los componentes internos.",
+                    "Como el conjunto de programas, aplicaciones y sistemas operativos que proporcionan las instrucciones.",
+                    "Como la estructura metálica que protege los circuitos electrónicos."
+                ],
+                correct: 2,
+                sustento: "El software está constituido por el conjunto de programas, aplicaciones y sistemas operativos que proporcionan las instrucciones necesarias para que el hardware funcione correctamente."
+            },
+            {
+                q: "3. ¿Cuál es la función principal del sistema operativo?",
+                options: [
+                    "Diseñar gráficos y presentaciones multimedia avanzadas.",
+                    "Actuar como intermediario entre el usuario y el hardware, administrando recursos.",
+                    "Proteger exclusivamente contra ataques de virus externos.",
+                    "Almacenar permanentemente toda la información del usuario."
+                ],
+                correct: 1,
+                sustento: "El sistema operativo es el programa fundamental que permite el funcionamiento integral de una computadora, ya que actúa como intermediario entre el usuario y el hardware. Su función principal consiste en administrar los recursos del sistema."
+            },
+            {
+                q: "4. ¿Cuál de los siguientes corresponde a un ejemplo de software de aplicación?",
+                options: [
+                    "El BIOS del sistema.",
+                    "El microprocesador central.",
+                    "Un procesador de texto.",
+                    "La memoria caché del disco duro."
+                ],
+                correct: 2,
+                sustento: "El software de aplicación está conformado por programas diseñados para realizar tareas específicas solicitadas por el usuario. Los procesadores de texto constituyen un ejemplo representativo."
+            },
+            {
+                q: "5. Un archivo digital se define como:",
+                options: [
+                    "Un componente físico del disco duro.",
+                    "Una estructura organizada de datos almacenada en un dispositivo e identificada por nombre y extensión.",
+                    "El cableado interno de transmisión de datos.",
+                    "Una señal eléctrica enviada por el monitor."
+                ],
+                correct: 1,
+                sustento: "Un archivo digital es una estructura organizada de datos que se almacena en un dispositivo, identificada por un nombre y una extensión que indica su tipo."
+            },
+            {
+                q: "6. La extensión de un archivo tiene como función principal:",
+                options: [
+                    "Aumentar el tamaño total del documento.",
+                    "Señalar el tipo de formato y permitir al sistema operativo asociarlo con el programa adecuado.",
+                    "Borrar automáticamente archivos antiguos.",
+                    "Cambiar el color de los iconos en el escritorio."
+                ],
+                correct: 1,
+                sustento: "La extensión de un archivo señala el tipo de formato y permite al sistema operativo asociarlo con el programa adecuado para su apertura y edición."
+            },
+            {
+                q: "7. Un procesador de texto se utiliza principalmente para:",
+                options: [
+                    "Editar videos de alta resolución.",
+                    "Redactar, modificar y dar formato a documentos escritos.",
+                    "Crear bases de datos complejas únicamente.",
+                    "Navegar exclusivamente por la deep web."
+                ],
+                correct: 1,
+                sustento: "Los procesadores de texto permiten redactar, modificar y dar formato a documentos escritos, incorporando texto, imágenes y otros elementos."
+            },
+            {
+                q: "8. Las hojas de cálculo se caracterizan por:",
+                options: [
+                    "Permitir la organización de datos en tablas y realizar operaciones matemáticas automáticas.",
+                    "Ser únicamente herramientas para el dibujo artístico.",
+                    "Funcionar solo como reproductores de música.",
+                    "No permitir el uso de fórmulas ni gráficos."
+                ],
+                correct: 0,
+                sustento: "Las hojas de cálculo permiten organizar datos en tablas, realizar operaciones matemática automáticas y analizar información mediante fórmulas y gráficos."
+            },
+            {
+                q: "9. Un software de presentación se utiliza para:",
+                options: [
+                    "Gestionar correos electrónicos masivos.",
+                    "Comunicar información de forma visual y estructurada para apoyar exposiciones.",
+                    "Programar el microcontrolador de una impresora.",
+                    "Limpiar el registro del sistema operativo."
+                ],
+                correct: 1,
+                sustento: "El software de presentación permite comunicar información de forma visual y estructurada, combinando texto, imágenes y otros recursos multimedia para apoyar exposiciones orales."
+            },
+            {
+                q: "10. El término interfaz de usuario se refiere a:",
+                options: [
+                    "El cable que conecta el mouse al gabinete.",
+                    "El conjunto de elementos visuales y funcionales que permiten al usuario comunicarse con el sistema.",
+                    "La velocidad de rotación del ventilador del CPU.",
+                    "La clave secreta de acceso al router."
+                ],
+                correct: 1,
+                sustento: "La interfaz de usuario es el conjunto de elementos visuales y funcionales que permiten al usuario comunicarse con el sistema informático, como iconos, menús y ventanas."
+            },
+            {
+                q: "11. La memoria RAM se caracteriza por:",
+                options: [
+                    "Almacenar datos de forma permanente incluso sin electricidad.",
+                    "Almacenar de manera temporal los datos y programas que el sistema está utilizando.",
+                    "Ser el componente más lento de la computadora.",
+                    "Impedir el acceso rápido a la información en ejecución."
+                ],
+                correct: 1,
+                sustento: "La memoria RAM almacena de manera temporal los datos y programas que el sistema está utilizando en ese momento, permitiendo un acceso rápido y eficiente."
+            },
+            {
+                q: "12. Un dispositivo de almacenamiento externo permite:",
+                options: [
+                    "Eliminar la necesidad de tener procesador.",
+                    "Guardar, respaldar y trasladar información facilitando la portabilidad.",
+                    "Aumentar únicamente la velocidad de internet.",
+                    "Modificar físicamente la pantalla del equipo."
+                ],
+                correct: 1,
+                sustento: "Los dispositivos de almacenamiento externo, como memorias USB o discos externos, permiten guardar, respaldar y trasladar información, facilitando la portabilidad."
+            },
+            {
+                q: "13. El uso responsable de las TIC implica:",
+                options: [
+                    "Compartir todas las contraseñas con desconocidos.",
+                    "Aplicar criterios de seguridad, ética y respeto, protegiendo información personal.",
+                    "Descargar programas de fuentes no confiables constantemente.",
+                    "Ignorar las normas de convivencia en línea."
+                ],
+                correct: 1,
+                sustento: "El uso responsable de las TIC implica aplicar criterios de seguridad, ética y respeto, protegiendo la información personal y utilizando la tecnología de forma consciente."
+            },
+            {
+                q: "14. La nube informática se utiliza principalmente para:",
+                options: [
+                    "Refrigerar los servidores físicos del hogar.",
+                    "Almacenar datos y utilizar servicios a través de internet.",
+                    "Imprimir documentos sin tinta.",
+                    "Conectar dispositivos sin necesidad de electricidad."
+                ],
+                correct: 1,
+                sustento: "La computación en la nube permite almacenar datos y utilizar servicios a través de internet, facilitando el acceso a la información desde distintos dispositivos."
+            },
+            {
+                q: "15. Un navegador web es un programa que permite:",
+                options: [
+                    "Reparar físicamente piezas dañadas del hardware.",
+                    "Interpretar y mostrar contenidos de internet, facilitando la navegación.",
+                    "Hackear sistemas de seguridad bancaria.",
+                    "Crear circuitos electrónicos integrados."
+                ],
+                correct: 1,
+                sustento: "Los navegadores web permiten interpretar y mostrar contenidos de internet, facilitando la navegación y el acceso a información en línea."
+            },
+            {
+                q: "16. La dirección URL se utiliza para:",
+                options: [
+                    "Localizar un recurso específico en la web (páginas, archivos).",
+                    "Medir la temperatura interna del procesador.",
+                    "Establecer la contraseña de la red Wi-Fi.",
+                    "Instalar el sistema operativo desde cero."
+                ],
+                correct: 0,
+                sustento: "La URL es una dirección que localiza un recurso específico en la web, permitiendo acceder a páginas, archivos o servicios en internet."
+            },
+            {
+                q: "17. Un virus informático se caracteriza por:",
+                options: [
+                    "Mejorar el rendimiento del disco duro sustancialmente.",
+                    "Ser un programa malicioso que altera el sistema o daña archivos.",
+                    "Actualizar automáticamente los controladores del sistema.",
+                    "Protejer la privacidad de los correos electrónicos."
+                ],
+                correct: 1,
+                sustento: "Los virus informáticos son programas maliciosos que pueden alterar el funcionamiento del sistema, dañar archivos o comprometer la seguridad."
+            },
+            {
+                q: "18. El antivirus cumple la función de:",
+                options: [
+                    "Infectar a otras computadoras de la red.",
+                    "Identificar, bloquear y eliminar amenazas informáticas.",
+                    "Eliminar todos los archivos personales sin previo aviso.",
+                    "Sustituir al sistema operativo principal."
+                ],
+                correct: 1,
+                sustento: "El antivirus es una herramienta de seguridad que identifica, bloquea y elimina amenazas informáticas, protegiendo el sistema y los datos."
+            },
+            {
+                q: "19. El correo electrónico se utiliza principalmente para:",
+                options: [
+                    "Enviar y recibir mensajes y archivos de forma rápida y segura.",
+                    "Ver televisión por cable únicamente.",
+                    "Calibrar los sensores de movimiento de un celular.",
+                    "Limitar el acceso a internet de toda una ciudad."
+                ],
+                correct: 0,
+                sustento: "El correo electrónico es un medio de comunicación digital que permite enviar y recibir mensajes y archivos de forma rápida y segura."
+            },
+            {
+                q: "20. Una contraseña segura se caracteriza por:",
+                options: [
+                    "Ser el nombre propio del usuario seguido de 123.",
+                    "Utilizar combinaciones variadas de caracteres para dificultar accesos no autorizados.",
+                    "Ser pública para que nadie la olvide.",
+                    "Tener menos de 3 letras siempre."
+                ],
+                correct: 1,
+                sustento: "Las contraseñas seguras utilizan combinaciones variadas de caracteres, lo que dificulta accesos no autorizados y protege la información personal."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 1800; // 30 minutes in seconds
+        let timerInterval;
+        let isAnswered = false;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            const q = questions[currentQuestion];
+            document.getElementById('questionCount').textContent = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+            document.getElementById('questionText').textContent = q.q;
+            document.getElementById('progressBar').style.width = `${((currentQuestion) / questions.length) * 100}%`;
+            
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left p-4 rounded-xl border-2 border-gray-100 bg-white text-gray-700 font-medium hover:shadow-md';
+                btn.innerHTML = `<span class="inline-block w-8 h-8 rounded-full bg-gray-100 text-center leading-8 mr-3 text-xs font-bold">${String.fromCharCode(65 + index)}</span> ${opt}`;
+                btn.onclick = () => selectOption(index);
+                optionsGrid.appendChild(btn);
+            });
+
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('nextBtn').classList.add('hidden');
+        }
+
+        function selectOption(index) {
+            if (isAnswered) return;
+            isAnswered = true;
+            
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option-btn');
+            const feedback = document.getElementById('feedback');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackText = document.getElementById('feedbackText');
+            
+            if (index === q.correct) {
+                options[index].classList.add('correct');
+                score++;
+                feedback.className = 'p-4 rounded-lg mb-6 border-l-4 bg-green-50 border-green-500 text-green-800 block';
+                feedbackTitle.textContent = "¡Correcto!";
+            } else {
+                options[index].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                feedback.className = 'p-4 rounded-lg mb-6 border-l-4 bg-red-50 border-red-500 text-red-800 block';
+                feedbackTitle.textContent = "Incorrecto";
+            }
+            
+            feedbackText.innerHTML = `<strong>Sustento:</strong> ${q.sustento}`;
+            document.getElementById('nextBtn').classList.remove('hidden');
+            
+            if (currentQuestion === questions.length - 1) {
+                document.getElementById('nextBtn').textContent = "Ver Resultados Finales";
+            }
+        }
+
+        document.getElementById('nextBtn').onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            clearInterval(timerInterval);
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('resultsArea').classList.remove('hidden');
+            document.getElementById('progressBar').style.width = '100%';
+            
+            const finalScore = document.getElementById('finalScore');
+            const finalPercent = document.getElementById('finalPercent');
+            const badge = document.getElementById('performanceBadge');
+            const msg = document.getElementById('performanceMsg');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            finalScore.textContent = `${score}/${questions.length}`;
+            finalPercent.textContent = `${percentage}%`;
+            
+            if (percentage >= 85) {
+                badge.textContent = "DESEMPEÑO ALTO";
+                badge.className = "inline-block px-6 py-2 rounded-full text-white font-bold text-xl mb-6 shadow-md bg-green-500";
+                msg.textContent = "¡Excelente dominio! Estás plenamente preparado para la prueba académica.";
+            } else if (percentage >= 60) {
+                badge.textContent = "DESEMPEÑO MEDIO";
+                badge.className = "inline-block px-6 py-2 rounded-full text-white font-bold text-xl mb-6 shadow-md bg-yellow-500";
+                msg.textContent = "Buen trabajo, pero aún puedes reforzar algunos conceptos técnicos.";
+            } else {
+                badge.textContent = "DESEMPEÑO BAJO";
+                badge.className = "inline-block px-6 py-2 rounded-full text-white font-bold text-xl mb-6 shadow-md bg-red-500";
+                msg.textContent = "Es necesario un repaso profundo del material. ¡No te rindas y vuelve a intentarlo!";
+            }
+        }
+
+        // Initialize
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>

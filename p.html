@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDENTIFICACIÓN DE PATRONES</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #E0F7FA 0%, #F0FDFA 50%, #FFFFFF 100%);
+            color: #1e293b; /* Slate 800 for soft contrast */
+            min-height: 100vh;
+        }
+        .text-petrol {
+            color: #0f4c5c;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .btn-option {
+            transition: all 0.2s ease;
+        }
+        .btn-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- INLINE ICONS (Replaces external library to prevent errors) ---
+        const IconClock = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        );
+        const IconArrowLeft = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        );
+        const IconRotateCcw = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+        );
+        const IconAward = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+        );
+        const IconCheckCircle = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        );
+        const IconXCircle = ({ size = 20, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        );
+
+        // --- DATASET: 90+ QUESTIONS ---
+        const rawData = [
+            { id: 1, q: "Observa la siguiente serie numérica: 2, 5, 9, 14, 20, ¿cuál es el número que sigue?", a: "27", s: "Las diferencias aumentan en una unidad cada paso (3, 4, 5, 6). La siguiente diferencia es 7. 20 + 7 = 27." },
+            { id: 2, q: "En una fila de baldosas, cada una tiene el doble de puntos que la anterior. Si la primera baldosa tiene 3 puntos, ¿cuántos puntos tendrá la quinta baldosa?", a: "48", s: "Multiplicar por 2: 3, 6, 12, 24, 48." },
+            { id: 3, q: "Observa la siguiente serie de números: 2, 4, 8, 16, ¿Cuál número completa correctamente la secuencia?", a: "32", s: "Cada número se multiplica por 2: 16 × 2 = 32." },
+            { id: 4, q: "Observa la siguiente sucesión numérica: 3, 6, 12, 24, _. ¿Cuál es el número que continúa la serie?", a: "48", s: "Multiplicar por 2: 24 × 2 = 48." },
+            { id: 5, q: "La siguiente serie muestra la evolución de la población en una aldea: 2, 4, 8, 16,... ¿Cuál es el número que sigue en la secuencia?", a: "32", s: "Doblando la cantidad: 16 × 2 = 32." },
+            { id: 6, q: "Observa la siguiente serie de letras: A, C, F, J, O,... ¿Cuál es la letra que sigue en la secuencia?", a: "U", s: "Posiciones: 1, 3, 6, 10, 15. Incrementos: +2, +3, +4, +5. Siguiente +6. 15+6=21 (U)." },
+            { id: 7, q: "En una campaña de entrega de caramelos, la cantidad se duplica: Día 1→3, Día 2→6, Día 3→12, Día 4→24. ¿Cuántos caramelos se repartirán el Día 5?", a: "48", s: "El doble del anterior: 24 × 2 = 48." },
+            { id: 8, q: "En una escuela se organizan filas de sillas. La primera fila tiene 5 sillas, y cada fila sucesiva tiene 2 sillas más. ¿Cuántas sillas habrá en la quinta fila?", a: "13", s: "5 + (5-1)×2 = 5 + 8 = 13." },
+            { id: 9, q: "Observa la siguiente serie numérica: 2, 5, 8, 11, ... ¿Cuál es el número que sigue?", a: "14", s: "Aumenta en 3 unidades: 11 + 3 = 14." },
+            { id: 10, q: "Observe la siguiente serie de números: 2, 5, 10, 17, 26, ¿Cuál es el número que completa la secuencia?", a: "37", s: "n² + 1. Para el sexto término: 6² + 1 = 37." },
+            { id: 11, q: "En una serie que indica cuántos libros lee un estudiante: 2, 5, 10, 17, 26. ¿Cuál será la cantidad en el sexto mes?", a: "37", s: "Incrementos impares 3, 5, 7, 9... siguiente 11. 26 + 11 = 37." },
+            { id: 12, q: "Una profesora dispone los números de los pupitres: 5, 11, 19, 29... ¿Cuál es el número siguiente?", a: "41", s: "Diferencias: 6, 8, 10... siguiente 12. 29 + 12 = 41." },
+            { id: 13, q: "Una estudiante registró libros por mes: 2, 5, 10, 17, 26. ¿Cuántos libros debería leer el mes siguiente?", a: "37", s: "Diferencias impares crecientes. 26 + 11 = 37." },
+            { id: 14, q: "Observa la siguiente sucesión: 5, 9, 17, 33, 65... ¿Cuál es el número que completa la serie?", a: "129", s: "Multiplicar por 2 y restar 1. 65 × 2 - 1 = 129." },
+            { id: 15, q: "Lecturas de temperatura: 2, 5, 9, 14. ¿Cuál es el próximo valor?", a: "20", s: "Incrementos: +3, +4, +5. Siguiente +6. 14 + 6 = 20." },
+            { id: 16, q: "Serie de números: 3, 6, 11, 18, 27... ¿Cuál es el siguiente número?", a: "38", s: "Diferencias: 3, 5, 7, 9... Siguiente 11. 27 + 11 = 38." },
+            { id: 17, q: "Sucesión: 2, 6, 12, 20... Incremento aumenta en 2 unidades. ¿Cuál es el siguiente número?", a: "30", s: "Diferencias: 4, 6, 8. Siguiente 10. 20 + 10 = 30." },
+            { id: 18, q: "Observa la serie: 2, 6, 12, 20. ¿Cuál es el número que completa?", a: "30", s: "Incrementos pares: 4, 6, 8... Siguiente 10. 20 + 10 = 30." },
+            { id: 19, q: "Sucesión: 2, 6, 12, 20... ¿Cuál es el próximo número?", a: "30", s: "Suma de pares crecientes. 20 + 10 = 30." },
+            { id: 20, q: "Libros entregados cada lunes: 5, 9, 13, 17... ¿Cuál será el número siguiente?", a: "21", s: "Aumenta en 4 constante. 17 + 4 = 21." },
+            { id: 21, q: "Trofeos entregados a los minutos 5, 10, 15 y 20. ¿Cuál será el siguiente minuto?", a: "25", s: "Serie aritmética +5. 20 + 5 = 25." },
+            { id: 22, q: "Libros por fila: 2, 5, 8, 11. ¿Cuántos libros habrá en la quinta fila?", a: "14", s: "Suma 3 libros por fila. 11 + 3 = 14." },
+            { id: 23, q: "Sucesión numérica: 5, 9, 17, 33... ¿Cuál es el número que continúa?", a: "65", s: "x2 menos 1. 33 × 2 - 1 = 65." },
+            { id: 24, q: "Alturas de arbustos: 2, 4, 8, 16. ¿Cuál será la altura del sexto arbusto?", a: "64", s: "Potencias de 2. 5to es 32, 6to es 64." },
+            { id: 25, q: "Sucesión: 5, 9, 17, 33... ¿Cuál es el número que sigue?", a: "65", s: "Diferencias son potencias de 2 (4, 8, 16). Siguiente 32. 33 + 32 = 65." },
+            { id: 26, q: "Serie: 2, 6, 12, 20... ¿Cuál es el número que sigue?", a: "30", s: "n(n+1). Para n=5: 5×6 = 30." },
+            { id: 27, q: "Participantes en concurso: 4, 7, 11, 16, 22. ¿Cuántos en la próxima ronda?", a: "29", s: "Diferencias aumentan en 1 (3, 4, 5, 6). Siguiente 7. 22 + 7 = 29." },
+            { id: 28, q: "Serie: 2, 5, 10, 17, 26... ¿Cuál es el próximo número?", a: "37", s: "Diferencias impares (3, 5, 7, 9). Siguiente 11. 26 + 11 = 37." },
+            { id: 29, q: "Serie numérica: 5, 10, 20, 40... ¿Cuál es el número que completa?", a: "80", s: "Multiplicar por 2. 40 × 2 = 80." },
+            { id: 30, q: "Secuencia de colores: rojo, verde, azul, rojo, verde, azul... ¿De qué color será el ladrillo 15?", a: "Azul", s: "Ciclo de 3. 15 es múltiplo de 3, corresponde a la 3ra posición: Azul.", options: ["Rojo", "Verde", "Azul", "Amarillo"] },
+            { id: 31, q: "Serie añadiendo 3 al anterior. Primer número 5. ¿Cuál será el cuarto número?", a: "14", s: "5, 8, 11, 14." },
+            { id: 32, q: "Serie: 2, 5, 10, 17... ¿Cuál completa la serie?", a: "26", s: "Diferencias impares 3, 5, 7. Siguiente 9. 17 + 9 = 26." },
+            { id: 33, q: "Libros con 15 páginas más que el anterior. 1ro tiene 8. ¿Cuántas el 5to?", a: "68", s: "8 + 15(4) = 8 + 60 = 68." },
+            { id: 34, q: "Serie: 2, 6, 12, 20... ¿Cuál es el número que sigue?", a: "30", s: "n(n+1). 5×6 = 30." },
+            { id: 35, q: "Filas de sillas: 2, 5, 10, 17. ¿Cuántas en la quinta fila?", a: "26", s: "Diferencias 3, 5, 7. Siguiente 9. 17 + 9 = 26." },
+            { id: 36, q: "Valores: 2, 5, 9, 14, 20. ¿Cuál es el próximo número?", a: "27", s: "Incrementos +3, +4, +5, +6. Siguiente +7. 20 + 7 = 27." },
+            { id: 37, q: "Serie: 2, 5, 10, 17, 26... ¿Cuál es el número que sigue?", a: "37", s: "Diferencias impares. 26 + 11 = 37." },
+            { id: 38, q: "Serie: 3, 8, 15, 24, 35... ¿Cuál es el número que sigue?", a: "48", s: "Diferencias impares 5, 7, 9, 11. Siguiente 13. 35 + 13 = 48." },
+            { id: 39, q: "Serie: 2, 6, 12, 20, 30... ¿Cuál es el siguiente número?", a: "42", s: "n(n+1). Para n=6: 6×7 = 42." },
+            { id: 40, q: "Serie numérica: 2, 5, 8, 11... Serie letras: A, C, E, G... ¿Siguientes términos?", a: "14 y I", s: "Numérica +3 (14). Letras saltan 1 (I).", options: ["14 y I", "13 y H", "15 y J", "12 y K"] },
+            { id: 41, q: "Sucesión: 3, 8, 15, 24, 35... ¿Cuál sigue?", a: "48", s: "35 + 13 = 48." },
+            { id: 42, q: "Libros entregados: 5, 9, 13, 17... ¿Cuántos a la siguiente clase?", a: "21", s: "Suma constante +4. 17 + 4 = 21." },
+            { id: 43, q: "Figuras: Círculo 1 rojo, Círculo 2 azules, Círculo 3 rojos, Círculo 4 azules. ¿Quinta figura?", a: "Círculo con 5 puntos rojos", s: "Puntos aumentan, color alterna (R, A, R, A, R).", options: ["Círculo con 5 puntos rojos", "Círculo con 5 puntos azules", "Círculo con 4 puntos rojos", "Cuadrado con 5 puntos rojos"] },
+            { id: 44, q: "Sucesión: 3, 8, 15, 24... ¿Cuál continúa?", a: "35", s: "Diferencias 5, 7, 9. Siguiente 11. 24 + 11 = 35." },
+            { id: 45, q: "Páginas leídas: 2, 5, 10, 17, 26... ¿Sexto día?", a: "37", s: "26 + 11 = 37." },
+            { id: 46, q: "Fichas: Círculo rojo, Cuadrado rojo, Cuadrado azul, Triángulo azul. ¿Quinta ficha?", a: "Triángulo rojo", s: "Cambia forma, luego color, luego forma. Toca cambiar color a Triángulo Rojo.", options: ["Triángulo rojo", "Triángulo azul", "Cuadrado rojo", "Círculo azul"] },
+            { id: 47, q: "Fila 1: rojo, azul, rojo... Fila 2: rojo, rojo, azul, azul... ¿Relación?", a: "Fila 2 repite cada color dos veces", s: "Fila 2 duplica la duración de cada color.", options: ["Fila 2 repite cada color dos veces", "Son idénticas", "Fila 1 es el doble de rápida", "No hay relación"] },
+            { id: 48, q: "Lista: 3, 5, 12, 14, 27, 29... ¿Número siguiente?", a: "48", s: "Impares: 3, 12, 27 (dif +9, +15, sig +21 -> 48).", },
+            { id: 49, q: "Serie: 3, 7, 15, 31... ¿Cuál sigue?", a: "63", s: "x2 + 1. 31 × 2 + 1 = 63." },
+            { id: 50, q: "Graduados: 45, 54, 63, ?, 81. ¿Número faltante?", a: "72", s: "Suma constante de 9. 63 + 9 = 72." },
+            { id: 51, q: "Fichas: 2, 5, 12, 27. ¿Quinta ficha?", a: "58", s: "Diferencias: 3, 7, 15 (x2+1). Siguiente dif 31. 27 + 31 = 58." },
+            { id: 52, q: "Sucesión: 2, 6, 12, 20, __. ¿Espacio en blanco?", a: "30", s: "n(n+1). 5×6 = 30." },
+            { id: 53, q: "Fila A: 2, 4, 8... Fila B: 3, 6, 12... ¿Relación?", a: "Fila B es 1.5 veces Fila A", s: "3/2 = 1.5, 6/4 = 1.5.", options: ["Fila B es 1.5 veces Fila A", "Fila B es el doble de Fila A", "Fila B es igual a Fila A", "Fila B es la mitad de Fila A"] },
+            { id: 54, q: "Serie multiplicando consecutivos: 2, 6, 12, 20, 30. ¿Siguiente?", a: "42", s: "6 × 7 = 42." },
+            { id: 55, q: "Áreas: 3, 8, 15, 24. ¿Siguiente?", a: "35", s: "n² + 2n. Para n=5: 25 + 10 = 35." },
+            { id: 56, q: "Fila 1: tri, cuad, circ. Fila 2: mismas en rojo. ¿3ra posición fila 2?", a: "Círculo rojo", s: "Misma figura + rojo. 3ra es círculo.", options: ["Círculo rojo", "Cuadrado rojo", "Triángulo rojo", "Círculo azul"] },
+            { id: 57, q: "Serie: 4, 14, 34, 74... ¿Siguiente?", a: "154", s: "x2 + 6. 74 × 2 + 6 = 154." },
+            { id: 58, q: "Estudiantes: 5, 9, 15, 23... ¿Quinto grupo?", a: "33", s: "Diferencias 4, 6, 8. Siguiente 10. 23 + 10 = 33." },
+            { id: 59, q: "Fila 1: rojo, azul (alt). Fila 2: 2, 4, 6, 8 (crece). ¿Comparación?", a: "Fila 1 repite, Fila 2 crece", s: "Fila 1 es cíclica, Fila 2 es aritmética.", options: ["Fila 1 repite, Fila 2 crece", "Ambas repiten", "Ambas crecen", "Fila 2 repite, Fila 1 crece"] },
+            { id: 60, q: "Manzanas: 2, 6, 12, 20. ¿Sexto puesto?", a: "42", s: "n(n+1). Para n=6, 42." },
+            { id: 61, q: "Árboles: 1, 2, 4, 7, 11, 16. ¿Séptimo año?", a: "22", s: "Diferencias 1, 2, 3, 4, 5. Siguiente 6. 16 + 6 = 22." },
+            { id: 62, q: "Bloques: duplica altura (..., 8cm) y alterna color (..., azul). ¿Siguiente?", a: "16 cm y rojo", s: "8x2=16. Después de azul va rojo.", options: ["16 cm y rojo", "16 cm y azul", "12 cm y rojo", "32 cm y azul"] },
+            { id: 63, q: "Asistencia: 5, 9, 17, 33... ¿Siguiente?", a: "65", s: "x2 - 1. 33 × 2 - 1 = 65." },
+            { id: 64, q: "Ejercicios semana: 2, 6, 12, 20. ¿Semana 5?", a: "30", s: "5 × 6 = 30." },
+            { id: 65, q: "Libros mesas: 2, 5, 10, 17. ¿Quinta mesa?", a: "26", s: "n² + 1. 25 + 1 = 26." },
+            { id: 66, q: "Capítulos: k(k+1). ¿Capítulo 6?", a: "42", s: "6 × 7 = 42." },
+            { id: 67, q: "Notas: 4, 10, 22, 46, __. ¿Completa?", a: "94", s: "x2 + 2. 46 × 2 + 2 = 94." },
+            { id: 68, q: "Serie: 2, 6, 12, 20... ¿Siguiente?", a: "30", s: "Diferencias pares. 20 + 10 = 30." },
+            { id: 69, q: "Serie: 1, 2, 4, 7... ¿Siguiente?", a: "11", s: "Diferencias 1, 2, 3. Siguiente 4. 7 + 4 = 11." },
+            { id: 70, q: "Serie: 2, 5, 10, 17, 26, __. ¿Completa?", a: "37", s: "26 + 11 = 37." },
+            { id: 71, q: "Serie A: 3, 6, 12... Serie B: 2, 5, 10... ¿Generación?", a: "A multiplica por 2, B suma impares", s: "Descripción de patrones.", options: ["A multiplica por 2, B suma impares", "Ambas suman 2", "A suma 3, B suma 5", "No tienen patrón"] },
+            { id: 72, q: "Serie I: 5, 9, 13... Serie II: 2, 6, 12... ¿Cuál tiene suma constante?", a: "Serie I", s: "Serie I aumenta siempre en 4.", options: ["Serie I", "Serie II", "Ambas", "Ninguna"] },
+            { id: 73, q: "Bancos: 2, 5, 10, 17. ¿Quinta fila?", a: "26", s: "17 + 9 = 26." },
+            { id: 74, q: "Aves: 2, 12, 30, 56, 90. ¿Sexto año?", a: "132", s: "4n² - 2n. Para n=6: 144-12=132." },
+            { id: 75, q: "Sucesión: 2, 6, 12, 20, 30... ¿Siguiente?", a: "42", s: "6 × 7 = 42." },
+            { id: 76, q: "Estudiantes: 2, 5, 9, 14, 20... ¿Sexto término?", a: "27", s: "Diferencias crecientes +1. 20 + 7 = 27." },
+            { id: 77, q: "Serie x2 + 1: 3, 7, 15, 31. ¿Siguiente?", a: "63", s: "31 × 2 + 1 = 63." },
+            { id: 78, q: "Libros mes: 3, 8, 15, 24, 35. ¿Sexto mes?", a: "48", s: "n(n+2). 6 × 8 = 48." },
+            { id: 79, q: "Sillas: 40, 45, 55, 70. ¿Quinta silla?", a: "90 cm", s: "Incrementos 5, 10, 15. Siguiente 20. 70 + 20 = 90." },
+            { id: 80, q: "Aprobados: 2, 6, 12, 20, 30. ¿Próximo año?", a: "42", s: "6 × 7 = 42." },
+            { id: 81, q: "Asientos: 2, 6, 12, 20. ¿Quinta fila?", a: "30", s: "5 × 6 = 30." },
+            { id: 82, q: "Aulas: 5, 9, 15, 23. ¿Quinto año?", a: "33", s: "Diferencias 4, 6, 8. Siguiente 10. 23 + 10 = 33." },
+            { id: 83, q: "Patrón: cuadrado, círculo, triángulo... ¿Posición 10?", a: "Cuadrado", s: "Ciclo de 3. 10 mod 3 = 1 -> Cuadrado.", options: ["Cuadrado", "Círculo", "Triángulo", "Rectángulo"] },
+            { id: 84, q: "Serie: 2, 4, 7, 11, 16... ¿Siguiente?", a: "22", s: "Diferencias 2, 3, 4, 5. Siguiente 6. 16 + 6 = 22." },
+            { id: 85, q: "Bloques: 2, 6, 12, 20... ¿Siguiente?", a: "30", s: "5 × 6 = 30." },
+            { id: 86, q: "Serie: 2, 5, 10, 17, 26... ¿Siguiente?", a: "37", s: "26 + 11 = 37." },
+            { id: 87, q: "Sucesión: 3, 8, 15, 24, 35... ¿Siguiente?", a: "48", s: "35 + 13 = 48." },
+            { id: 88, q: "Piezas: 2, 5, 10, 17... ¿Siguiente bloque?", a: "26", s: "17 + 9 = 26." },
+            { id: 89, q: "Problemas: 5, 7, 10, 15, 23, 36. ¿Séptima sesión?", a: "57", s: "Diferencias Fibonacci (2, 3, 5, 8, 13). Siguiente 21. 36 + 21 = 57." },
+            { id: 90, q: "Serie: 3, 7, 15, 31... ¿Siguiente?", a: "63", s: "x2 + 1. 31 × 2 + 1 = 63." }
+        ];
+
+        // --- HELPER FUNCTIONS ---
+        const generateOptions = (correct, allQuestions, index) => {
+            // Check if specific options are provided in data
+            if (rawData[index].options) return shuffleArray(rawData[index].options);
+
+            const isNumber = !isNaN(correct) && !correct.includes("cm");
+            let options = [correct];
+            
+            if (isNumber) {
+                const num = parseInt(correct);
+                const distractors = new Set();
+                while(distractors.size < 3) {
+                    const diff = Math.floor(Math.random() * 10) + 1; // 1 to 10
+                    const sign = Math.random() > 0.5 ? 1 : -1;
+                    const d = num + (diff * sign);
+                    if (d !== num && d > 0) distractors.add(d.toString());
+                }
+                options = [...options, ...Array.from(distractors)];
+            } else if (correct.includes("cm")) {
+                // Handle mixed text/num like "90 cm"
+                const num = parseInt(correct);
+                options = [correct, `${num - 10} cm`, `${num + 10} cm`, `${num + 5} cm`];
+            } else {
+                // Text fallback: Pick 3 random answers from other questions
+                const otherAnswers = rawData
+                    .filter(q => isNaN(q.a) && q.a !== correct)
+                    .map(q => q.a);
+                
+                // If not enough unique text answers, fallback to generic
+                if (otherAnswers.length < 3) {
+                     options = [correct, "Opción B", "Opción C", "Opción D"]; // Fallback
+                } else {
+                    const shuffledOthers = shuffleArray(otherAnswers).slice(0, 3);
+                    options = [...options, ...shuffledOthers];
+                }
+            }
+            return shuffleArray(options);
+        };
+
+        const shuffleArray = (array) => {
+            const newArr = [...array];
+            for (let i = newArr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+            }
+            return newArr;
+        };
+
+        const App = () => {
+            const [started, setStarted] = useState(false);
+            const [currentQIndex, setCurrentQIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [timeLeft, setTimeLeft] = useState(100 * 60); // 100 minutes
+            const [finished, setFinished] = useState(false);
+            const [feedback, setFeedback] = useState(null); // { correct: boolean, msg: string }
+            const [selectedOption, setSelectedOption] = useState(null);
+            
+            // Prepare questions with options once
+            const questions = useMemo(() => {
+                return rawData.map((item, idx) => ({
+                    ...item,
+                    options: generateOptions(item.a, rawData, idx)
+                }));
+            }, []);
+
+            useEffect(() => {
+                let timer;
+                if (started && !finished && timeLeft > 0) {
+                    timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+                } else if (timeLeft === 0) {
+                    setFinished(true);
+                }
+                return () => clearInterval(timer);
+            }, [started, finished, timeLeft]);
+
+            const formatTime = (seconds) => {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m}:${s < 10 ? '0' : ''}${s}`;
+            };
+
+            const handleStart = () => setStarted(true);
+
+            const handleAnswer = (option) => {
+                if (feedback) return; // Prevent double click
+                
+                const currentQ = questions[currentQIndex];
+                const isCorrect = option === currentQ.a;
+                
+                setSelectedOption(option);
+                
+                if (isCorrect) setScore(prev => prev + 1);
+                
+                setFeedback({
+                    correct: isCorrect,
+                    msg: currentQ.s
+                });
+            };
+
+            const nextQuestion = () => {
+                setFeedback(null);
+                setSelectedOption(null);
+                if (currentQIndex < questions.length - 1) {
+                    setCurrentQIndex(prev => prev + 1);
+                } else {
+                    setFinished(true);
+                }
+            };
+
+            const restart = () => {
+                setStarted(false);
+                setFinished(false);
+                setCurrentQIndex(0);
+                setScore(0);
+                setTimeLeft(100 * 60);
+                setFeedback(null);
+                setSelectedOption(null);
+            };
+
+            // Results Calculation
+            const percentage = Math.round((score / questions.length) * 100);
+            let performance = "Bajo";
+            let colorPerf = "text-red-500";
+            if (percentage >= 80) { performance = "Alto"; colorPerf = "text-green-600"; }
+            else if (percentage >= 50) { performance = "Medio"; colorPerf = "text-yellow-600"; }
+
+            if (!started) {
+                return (
+                    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+                         <div className="glass-panel p-10 rounded-3xl shadow-2xl max-w-lg w-full border-t-4 border-teal-400">
+                            <h1 className="text-4xl font-bold text-petrol mb-6 tracking-tight">IDENTIFICACIÓN DE PATRONES</h1>
+                            <p className="text-gray-600 mb-8 text-lg">Simulador académico de 90 preguntas. Tienes 100 minutos.</p>
+                            <button 
+                                onClick={handleStart}
+                                className="w-full bg-gradient-to-r from-teal-400 to-cyan-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all text-xl"
+                            >
+                                Iniciar Simulador
+                            </button>
+                             <div className="mt-8 pt-4 border-t border-gray-200">
+                                <a href="land_pag.html" className="text-gray-400 hover:text-teal-600 font-medium flex items-center justify-center gap-2">
+                                    <IconArrowLeft size={18} /> Volver
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (finished) {
+                return (
+                    <div className="flex flex-col items-center justify-center min-h-screen p-4 fade-in">
+                        <div className="glass-panel p-8 rounded-3xl shadow-2xl max-w-2xl w-full text-center">
+                            <div className="mb-6 flex justify-center">
+                                <IconAward size={64} className={colorPerf} />
+                            </div>
+                            <h2 className="text-3xl font-bold text-gray-800 mb-2">Resultados Finales</h2>
+                            <p className="text-gray-500 mb-6">Simulador Completado</p>
+                            
+                            <div className="grid grid-cols-3 gap-4 mb-8">
+                                <div className="p-4 bg-blue-50 rounded-xl">
+                                    <p className="text-sm text-gray-500">Puntaje</p>
+                                    <p className="text-2xl font-bold text-blue-600">{score} / {questions.length}</p>
+                                </div>
+                                <div className="p-4 bg-blue-50 rounded-xl">
+                                    <p className="text-sm text-gray-500">Porcentaje</p>
+                                    <p className="text-2xl font-bold text-blue-600">{percentage}%</p>
+                                </div>
+                                <div className="p-4 bg-blue-50 rounded-xl">
+                                    <p className="text-sm text-gray-500">Desempeño</p>
+                                    <p className={`text-2xl font-bold ${colorPerf}`}>{performance}</p>
+                                </div>
+                            </div>
+
+                            <p className="text-gray-700 italic mb-8">"{performance === 'Alto' ? '¡Excelente trabajo! Has dominado los patrones.' : 'Sigue practicando, la constancia es clave.'}"</p>
+
+                            <button 
+                                onClick={restart}
+                                className="flex items-center justify-center gap-2 mx-auto bg-gray-800 text-white font-semibold py-3 px-8 rounded-full hover:bg-gray-700 transition-colors"
+                            >
+                                <IconRotateCcw size={20} /> Reiniciar Simulador
+                            </button>
+                        </div>
+                        <footer className="mt-12 text-center text-gray-500 text-sm">
+                            <p>@victor 2026-SIMULADOR ACADÉMICO - IDENTIFICACIÓN DE PATRONES</p>
+                            <p className="italic text-teal-600 mt-1">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+                        </footer>
+                    </div>
+                );
+            }
+
+            const currentQ = questions[currentQIndex];
+
+            return (
+                <div className="min-h-screen flex flex-col max-w-5xl mx-auto p-4 md:p-6">
+                    {/* Header */}
+                    <header className="flex justify-between items-center mb-6">
+                        <a href="land_pag.html" className="flex items-center gap-2 text-gray-500 hover:text-teal-600 font-semibold transition-colors bg-white px-4 py-2 rounded-full shadow-sm">
+                            <IconArrowLeft size={20} /> <span className="hidden sm:inline">Volver</span>
+                        </a>
+                        <h1 className="text-lg md:text-xl font-bold text-petrol hidden md:block">IDENTIFICACIÓN DE PATRONES</h1>
+                        <div className={`flex items-center gap-2 font-mono text-xl font-bold px-4 py-2 rounded-full shadow-sm ${timeLeft < 300 ? 'bg-red-100 text-red-600' : 'bg-white text-teal-600'}`}>
+                            <IconClock size={20} /> {formatTime(timeLeft)}
+                        </div>
+                    </header>
+
+                    {/* Progress Bar */}
+                    <div className="w-full bg-gray-200 rounded-full h-3 mb-8 overflow-hidden">
+                        <div 
+                            className="bg-gradient-to-r from-teal-400 to-cyan-500 h-3 rounded-full transition-all duration-500 ease-out"
+                            style={{ width: `${((currentQIndex + 1) / questions.length) * 100}%` }}
+                        ></div>
+                    </div>
+
+                    {/* Question Card */}
+                    <main className="flex-grow flex flex-col">
+                        <div className="glass-panel p-6 md:p-10 rounded-3xl shadow-xl border-t-4 border-teal-400 relative overflow-hidden fade-in">
+                            <div className="absolute top-0 right-0 bg-teal-50 px-4 py-2 rounded-bl-2xl text-teal-800 font-bold text-sm">
+                                Pregunta {currentQIndex + 1} de {questions.length}
+                            </div>
+                            
+                            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-8 leading-relaxed pr-8">
+                                {currentQ.q}
+                            </h2>
+
+                            {/* Options Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                                {currentQ.options.map((opt, idx) => {
+                                    let btnClass = "bg-white border-2 border-gray-100 hover:border-teal-300 text-gray-700";
+                                    // Logic for colors after selection
+                                    if (feedback) {
+                                        if (opt === currentQ.a) btnClass = "bg-green-100 border-green-500 text-green-800 font-bold";
+                                        else if (opt === selectedOption && opt !== currentQ.a) btnClass = "bg-red-100 border-red-500 text-red-800";
+                                        else btnClass = "bg-gray-50 border-gray-100 text-gray-400 opacity-60";
+                                    }
+
+                                    return (
+                                        <button
+                                            key={idx}
+                                            onClick={() => handleAnswer(opt)}
+                                            disabled={!!feedback}
+                                            className={`btn-option p-4 rounded-xl text-left text-lg font-medium shadow-sm ${btnClass}`}
+                                        >
+                                            {opt}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Feedback Section */}
+                            {feedback && (
+                                <div className="fade-in bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-xl mb-6">
+                                    <div className="flex items-start gap-3">
+                                        {feedback.correct ? <IconCheckCircle className="text-green-500 mt-1 flex-shrink-0" /> : <IconXCircle className="text-red-500 mt-1 flex-shrink-0" />}
+                                        <div>
+                                            <h3 className={`font-bold text-lg mb-2 ${feedback.correct ? 'text-green-700' : 'text-red-700'}`}>
+                                                {feedback.correct ? '¡Correcto!' : 'Incorrecto'}
+                                            </h3>
+                                            <p className="text-gray-700 text-base leading-relaxed">
+                                                <span className="font-semibold">Sustento:</span> {feedback.msg}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Next Button */}
+                            {feedback && (
+                                <div className="flex justify-end fade-in">
+                                    <button 
+                                        onClick={nextQuestion}
+                                        className="bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105"
+                                    >
+                                        {currentQIndex < questions.length - 1 ? 'Siguiente Pregunta' : 'Ver Resultados'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </main>
+
+                    {/* Footer Credits */}
+                    <footer className="mt-12 mb-6 text-center text-gray-500 text-xs md:text-sm">
+                        <p className="font-semibold">@victor 2026-SIMULADOR ACADÉMICO - IDENTIFICACIÓN DE PATRONES</p>
+                        <p className="italic text-teal-600 mt-1">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
